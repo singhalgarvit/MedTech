@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "This is the server side code of the MedTech Project ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/singhalgarvit/MedTech.git"
+  },
+  "author": "Garvit Singhal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/singhalgarvit/MedTech/issues"
+  },
+  "homepage": "https://github.com/singhalgarvit/MedTech#readme",
+  "dependencies": {
+    "body-parse": "^0.1.0",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}

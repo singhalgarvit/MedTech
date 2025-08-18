@@ -18,6 +18,10 @@ app.get('/',(req,res)=>{
     res.send("Hello World");
 })
 
+//Routes of the application
+import authRoute from './src/routes/authRoutes.js'
+app.use('/auth',authRoute);
+
 const port = process.env.PORT;
 
 app.listen(port,()=>{

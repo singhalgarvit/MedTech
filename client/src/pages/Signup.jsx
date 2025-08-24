@@ -9,7 +9,6 @@ function Signup() {
   const {
     register,
     handleSubmit,
-    watch,
     clearErrors,
     setError,
     formState: {errors, isSubmitting},
@@ -20,7 +19,6 @@ function Signup() {
   const submitForm = async (data) => {
     try {
       const res = await handleSignup(data);
-      console.log(res);
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message;
       setError("signupError", {message: errMsg});

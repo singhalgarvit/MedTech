@@ -9,7 +9,6 @@ function Login() {
   const {
     register,
     handleSubmit,
-    watch,
     setError,
     clearErrors,
     formState: {errors, isSubmitting},
@@ -20,7 +19,6 @@ function Login() {
   const submitForm = async (data) => {
     try {
       const res = await handleLogin(data);
-      console.log(res);
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message;
       setError("loginError", {message: errMsg});

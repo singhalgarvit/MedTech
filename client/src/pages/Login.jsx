@@ -2,17 +2,30 @@ import {useForm} from "react-hook-form";
 import InputField from "../components/InputField";
 import FormWrapper from "../components/FormWrapper";
 import Button from "../components/Button";
+import {Link} from "react-router-dom";
+import {useAuth} from "../hooks/useAuth";
 
 function Login() {
   const {
     register,
     handleSubmit,
     watch,
-    formState: {errors},
+    setError,
+    clearErrors,
+    formState: {errors, isSubmitting},
   } = useForm();
 
-  const submitForm = (data) => {
-    console.log(data);
+  const {handleLogin} = useAuth();
+
+  const submitForm = async (data) => {
+    try {
+      const res = await handleLogin(data);
+      console.log(res);
+    } catch (err) {
+      const errMsg = err.response?.data?.error || err.message;
+      setError("loginError", {message: errMsg});
+      console.log(errMsg);
+    }
   };
 
   return (
@@ -24,6 +37,7 @@ function Login() {
             label="Email"
             name="email"
             type="text"
+            placeholder="John@example.com"
             register={register}
             error={errors.email}
           />
@@ -31,11 +45,28 @@ function Login() {
             label="Password"
             name="password"
             type="password"
+            placeholder="Enter Password"
             register={register}
             error={errors.password}
           />
-          <Button type="submit" value="Login"/>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            value="Login"
+            onclick={() => clearErrors()}
+          />
+          {errors.loginError && (
+            <p className="text-red-500 text-sm text-center">
+              {errors.loginError.message}
+            </p>
+          )}
         </form>
+        <p>
+          Don't Have An Account&nbsp;
+          <Link to="/signup" className="underline">
+            Register Here
+          </Link>
+        </p>
       </FormWrapper>
     </div>
   );

@@ -1,5 +1,5 @@
 
-function InputField({label, name, type, register, error}) {
+function InputField({label, name, type, register, error,placeholder}) {
   return (
     <>
       <label htmlFor={name} className="block">
@@ -8,6 +8,7 @@ function InputField({label, name, type, register, error}) {
       <input
         id={name}
         type={type}
+        placeholder={placeholder}
         className="border-2 px-2 py-1 rounded-md w-xl"
         {...register(name, {required: `${label} is required`})}
       />

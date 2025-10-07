@@ -60,6 +60,7 @@ function Signup() {
             disabled={isSubmitting}
             value="Signup"
             onclick={() => clearErrors()}
+            className={"mt-4 w-full"}
           />
           {errors.signupError && (
             <p className="text-red-500 text-sm text-center">

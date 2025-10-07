@@ -27,7 +27,7 @@ function Login() {
   };
 
   return (
-    <div>
+    <div cla>
       <FormWrapper>
         <h1 className="text-4xl text-center">Login</h1>
         <form onSubmit={handleSubmit(submitForm)}>
@@ -52,6 +52,7 @@ function Login() {
             disabled={isSubmitting}
             value="Login"
             onclick={() => clearErrors()}
+            className={"mt-4 w-full"}
           />
           {errors.loginError && (
             <p className="text-red-500 text-sm text-center">

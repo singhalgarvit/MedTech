@@ -1,14 +1,20 @@
-import {Link} from "react-router-dom";
+import FAQs from "../sections/FAQs";
+import Footer from "../sections/Footer";
+import HeroSection from "../sections/HeroSection";
+import Navbar from "../sections/Navbar";
+import Testimonials from "../sections/Testimonials";
+import WhyUs from "../sections/WhyUs";
 
 function Home() {
   return (
-    <div>
-      <h1 className="text-4xl text-center">Medtech</h1>
-      <div className="text-gray-700 text-center underline">
-        <Link className=" m-2" to="/login">Login</Link>
-        <Link className="m-2" to="/signup">Signup</Link>
-      </div>
-    </div>
+    <>
+      <Navbar/>
+      <HeroSection/>
+      <WhyUs/>
+      <Testimonials/>
+      <FAQs/>
+      <Footer/>
+    </>
   );
 }
 

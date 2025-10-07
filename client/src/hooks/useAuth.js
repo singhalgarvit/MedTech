@@ -24,5 +24,11 @@ export const useAuth = () => {
       throw err;
     }
   };
-  return {handleLogin, handleSignup};
+
+  const handleLogout = () => {
+    setToken(null);
+    localStorage.removeItem("token");
+  };
+  
+  return {handleLogin, handleSignup, handleLogout};
 };

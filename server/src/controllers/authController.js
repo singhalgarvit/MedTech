@@ -1,4 +1,4 @@
-import jwtSign from "../../utils/jwtSign.js";
+import {jwtSign} from "../../utils/jwtSign.js";
 import authService from "../services/authServices.js";
 
 const login = async (req, res) => {

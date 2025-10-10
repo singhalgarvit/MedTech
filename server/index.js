@@ -19,8 +19,12 @@ app.get('/',(req,res)=>{
 })
 
 //Routes of the application
-import authRoute from './src/routes/authRoutes.js'
-app.use('/auth',authRoute);
+import authRoutes from './src/routes/authRoutes.js'
+app.use('/auth',authRoutes);
+
+
+import doctorRoutes from './src/routes/doctorRoutes.js'
+app.use('/doctor',doctorRoutes);   
 
 const port = process.env.PORT;
 

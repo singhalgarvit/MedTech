@@ -14,7 +14,7 @@ function Navbar() {
 
   const data = [
     {name: "Home", link: "/"},
-    {name: "About", link: "/about"},
+    {name: "Our Doctors", link: "/doctors"},
     {name: "Services", link: "/services"},
     {name: "Contact", link: "/contact"},
     {name: FullName, link: "/profile", icon: <CgProfile className="inline-block" size={25} />}

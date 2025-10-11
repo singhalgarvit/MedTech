@@ -1,4 +1,4 @@
-import TestimonialCard from "../components/Hero/TestimonialCard";
+import TestimonialCard from "../../components/Hero/TestimonialCard";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

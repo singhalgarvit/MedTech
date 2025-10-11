@@ -1,5 +1,5 @@
 
-import HeroImg from '../assets/Medicine-bro.png'
+import HeroImg from '../../assets/Medicine-bro.png'
 
 function HeroSection() {
   return (

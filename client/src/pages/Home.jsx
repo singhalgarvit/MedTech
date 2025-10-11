@@ -1,9 +1,9 @@
-import FAQs from "../sections/FAQs";
+import FAQs from "../sections/HomePage/FAQs";
 import Footer from "../sections/Footer";
-import HeroSection from "../sections/HeroSection";
+import HeroSection from "../sections/HomePage/HeroSection";
 import Navbar from "../sections/Navbar";
-import Testimonials from "../sections/Testimonials";
-import WhyUs from "../sections/WhyUs";
+import Testimonials from "../sections/HomePage/Testimonials";
+import WhyUs from "../sections/HomePage/WhyUs";
 
 function Home() {
   return (

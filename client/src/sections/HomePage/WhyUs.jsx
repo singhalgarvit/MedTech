@@ -1,8 +1,8 @@
-import WhyUsCard from "../components/Hero/WhyUsCard";
-import SecurityImg from "../assets/Security.jpg";
-import AiImg from "../assets/ai.jpg";
-import SupportImg from "../assets/Support.jpg";
-import ScheduleImg from "../assets/Schedule.jpg";
+import WhyUsCard from "../../components/Hero/WhyUsCard";
+import SecurityImg from "../../assets/Security.jpg";
+import AiImg from "../../assets/AI.jpg";
+import SupportImg from "../../assets/support.jpg";
+import ScheduleImg from "../../assets/Schedule.jpg";
 
 function WhyUs() {
   const data = [

@@ -20,7 +20,6 @@ function Doctors() {
   }, []);
   return (
     <>
-      <Navbar />
       <div className="text-center p-8 ">
         <h1 className="text-3xl font-bold">Meet Our Doctors</h1>
       </div> 
@@ -33,7 +32,6 @@ function Doctors() {
       ) : (
         <p>No doctors found.</p>
       )}
-      <Footer />
     </>
   );
 }

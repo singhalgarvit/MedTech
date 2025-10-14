@@ -9,7 +9,12 @@ import {TiThMenuOutline} from "react-icons/ti";
 
 function Navbar() {
   const {token} = useContext(AuthContext);
-  const FullName = getFullName(token);
+  let FullName;
+  if(!token){
+    FullName = "";
+  }else{
+    FullName = getFullName(token);
+  }
   const [open, setOpen] = useState(false);
 
   const data = [
@@ -17,8 +22,8 @@ function Navbar() {
     {name: "Our Doctors", link: "/doctors"},
     {name: "Services", link: "/services"},
     {name: "Contact", link: "/contact"},
-    {name: FullName, link: "/profile", icon: <CgProfile className="inline-block" size={25} />}
-  ];
+    {name: token?FullName:"Login", link:token? "/dashboard":"/login", icon:token && <CgProfile className="inline-block" size={25} />}
+  ];  
 
   return (
     <nav className="sticky top-0 flex justify-between items-center pl-2 py-2 md:p-4 bg-blue-800 text-white z-10">
@@ -33,7 +38,7 @@ function Navbar() {
             {item.icon} {item.name}
           </Link>
         ))}
-        <LogoutButton />
+        {token && <LogoutButton />}
       </div>
 
       <div className="md:hidden relative">
@@ -54,7 +59,7 @@ function Navbar() {
                 {item.icon} {item.name}
               </Link>
             ))}
-            <LogoutButton className="block w-full px-4 py-2 mt-2" />
+            {token && <LogoutButton className="block w-full px-4 py-2 mt-2" />}
           </div>
         )}
       </div>

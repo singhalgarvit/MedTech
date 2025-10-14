@@ -8,12 +8,10 @@ import WhyUs from "../sections/HomePage/WhyUs";
 function Home() {
   return (
     <>
-      <Navbar/>
       <HeroSection/>
       <WhyUs/>
       <Testimonials/>
       <FAQs/>
-      <Footer/>
     </>
   );
 }

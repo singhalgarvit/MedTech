@@ -1,13 +1,16 @@
-import './App.css'
-import Routers from './Routers'
+import "./App.css";
+import Routers from "./Routers";
+import Footer from "./sections/Footer";
+import Navbar from "./sections/Navbar";
 
 function App() {
-
   return (
     <>
-      <Routers/>
+      <Navbar />
+      <Routers />
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

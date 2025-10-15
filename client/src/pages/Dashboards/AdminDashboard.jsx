@@ -32,6 +32,7 @@ function AdminDashboard() {
           <NavLink
             key={index}
             to={item.path}
+            end
             className={({isActive}) =>
               `border-0 py-1 px-2 rounded-md transition-all ${
                 isActive

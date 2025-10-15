@@ -4,6 +4,8 @@ import FormWrapper from "../components/FormWrapper";
 import Button from "../components/Button";
 import {Link} from "react-router-dom";
 import {useAuth} from "../hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {loginSchema} from "../schemas/authSchema";
 
 function Login() {
   const {
@@ -12,7 +14,9 @@ function Login() {
     setError,
     clearErrors,
     formState: {errors, isSubmitting},
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(loginSchema)
+  });
 
   const {handleLogin} = useAuth();
 

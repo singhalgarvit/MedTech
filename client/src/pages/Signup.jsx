@@ -4,6 +4,8 @@ import InputField from "../components/InputField";
 import FormWrapper from "../components/FormWrapper";
 import Button from "../components/Button";
 import {useAuth} from "../hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {signupSchema} from "../schemas/authSchema";
 
 function Signup() {
   const {
@@ -12,7 +14,9 @@ function Signup() {
     clearErrors,
     setError,
     formState: {errors, isSubmitting},
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(signupSchema)
+  });
 
   const {handleSignup} = useAuth();
 

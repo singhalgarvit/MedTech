@@ -10,10 +10,10 @@ const userExist = (bool) =>async(req,res,next)=>{
         next();
     }
     else if(isUser && bool == false){                       //if user exist already but the user has made signup request;
-        return res.status(409).json({error:"User with this Email is Already exist Please Login to continue"})
+        return res.status(409).json({error:"User with this Email is Already exist."})
     }
     else{                                                   //if user does not exist but the user has made login request;
-        return res.status(404).json({error:"User not found with this Email"});
+        return res.status(404).json({error:"User not found with this Email."});
     }
 }
 

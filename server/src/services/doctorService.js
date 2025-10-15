@@ -13,9 +13,6 @@ const getDoctorById = async(id)=>{
 
 const createDoctor = async(doctorData)=>{
     const _id = new mongoose.Types.ObjectId();
-    if(await User.findOne({email: doctorData.email})){
-        throw new Error("Doctor with this email already exists");
-    }
     const doctor = new User({...doctorData, _id, role:"doctor"});
     await doctor.save();
     return doctor;

@@ -28,6 +28,8 @@ app.use('/doctor',doctorRoutes);
 
 const port = process.env.PORT;
 
-app.listen(port,()=>{
-    console.log("Server Started");
-});
+// app.listen(port,()=>{
+//     console.log("Server Started");
+// });
+
+export default app;

@@ -8,11 +8,13 @@ const app = express();
 import bodyParser from 'body-parser';           //body-parser is used to streamline input and parsing the raw data coming from input and manipulate req.body
 import cors from 'cors'                         //Must - used to access cross origin request access
 import connectDB from './database/index.js'
-connectDB();
+import vercelConfig from './middleware/vercelConfig.js';
+await connectDB();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cors());
+app.use(vercelConfig);
 
 app.get('/',(req,res)=>{
     res.send("Hello World");

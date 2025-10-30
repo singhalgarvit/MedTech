@@ -11,14 +11,14 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server/vercel.js"
+      "source": "/api/(.*)",
+      "destination": "/server/vercel.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/client/$1"
+      "source": "/(.*)",
+      "destination": "/client/$1"
     }
   ]
 }

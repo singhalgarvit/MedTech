@@ -1,11 +1,12 @@
-import { AuthContextProvider } from "./authContext"
+import {AuthContextProvider} from "./authContext";
+import {DoctorContextProvider} from "./doctorContext";
 
-const ContextProvider=({children})=> {
+const ContextProvider = ({children}) => {
   return (
-    <AuthContextProvider>
-        {children}
-    </AuthContextProvider>
-  )
-}
+    <DoctorContextProvider>
+      <AuthContextProvider>{children}</AuthContextProvider>
+    </DoctorContextProvider>
+  );
+};
 
 export default ContextProvider;

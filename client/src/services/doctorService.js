@@ -8,12 +8,13 @@ const getDoctors = async () => {
         token: localStorage.getItem("token"),
       },
     });
+    const jsonRes = await res.json();
+
     if (!res.ok) {
-      throw new Error("Failed to fetch doctors");
+      throw new Error(jsonRes.error ||"Something Went Wrong");
     }
-    return await res.json();
+    return jsonRes;
   } catch (error) {
-    console.error("Error in getDoctors:", error);
     throw error;
   }
 };

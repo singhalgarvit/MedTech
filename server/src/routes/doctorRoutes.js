@@ -7,8 +7,8 @@ import { validate } from '../../middleware/validate.js';
 import { userSchema } from '../../validators/userSchema.js';
 
 
-router.get('/', verifyToken, doctorController.getAllDoctors);
-router.get('/:id', verifyToken, doctorController.getDoctorById);
+router.get('/', doctorController.getAllDoctors);
+router.get('/:id', doctorController.getDoctorById);
 router.post('/', verifyToken,validate(userSchema) ,userExists(false), requireRole(['admin']), doctorController.createDoctor);
 // router.put('/:id', verifyToken, requireRole(['admin']), doctorController.updateDoctor);
 // router.delete('/:id', verifyToken, requireRole(['admin']), doctorController.deleteDoctor);

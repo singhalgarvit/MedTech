@@ -22,7 +22,7 @@ function Navbar() {
     {name: "Our Doctors", link: "/doctors"},
     {name: "Services", link: "/services"},
     {name: "Contact", link: "/contact"},
-    {name: token?FullName:"Login", link:token? "/dashboard":"/login", icon:token && <CgProfile className="inline-block" size={25} />}
+    {name: token?FullName:"Login", link:token? "/dashboard":"/login", icon:<CgProfile className="inline-block" size={25} />}
   ];  
 
   return (

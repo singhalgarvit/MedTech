@@ -15,7 +15,8 @@ export const useDoctors = () => {
       setDoctorsList(res);
       return res;
     } catch (err) {
-      throw err;
+      // throw err;
+      console.log(err.message)
     }
   };
 

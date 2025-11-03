@@ -13,12 +13,12 @@ function Routers() {
   return (
     <>
         <Routes>
-            <Route path='/' element={token ?<Home/>:<Navigate to="/login"/>}/>
+            <Route path='/' element={<Home/>}/>
             <Route path='/login' element={token?<Navigate to="/"/>:<Login/>}/>
             <Route path='/signup' element={token?<Navigate to="/"/>:<Signup/>}/>
-            <Route path='/doctors' element={<ProtectedRoute allowedRoles={['admin', 'doctor','patient']}><Doctors/></ProtectedRoute>}/>
+            <Route path='/doctors' element={<Doctors/>}/>
             <Route path='/dashboard/*' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Dashboard/></ProtectedRoute>}/>
-            <Route path='/*' element={<Navigate to="/login"/>}/>
+            <Route path='/*' element={<Navigate to="/"/>}/>
         </Routes>
     </>
   )

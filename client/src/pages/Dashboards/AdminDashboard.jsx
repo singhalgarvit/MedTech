@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import CreateDoctor from "../../sections/AdminPage/CreateDoctor";
+import ApproveDoctor from "../../sections/AdminPage/ApproveDoctor";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ function AdminDashboard() {
       <div className="sm:shadow-[inset_0_0px_4px_rgba(0,0,0,0.6)] rounded-md p-1 md:p-4 my-6">
         <Routes>
           <Route path="/" element={<div>Admin Home</div>} />
-          <Route path="doctors" element={<CreateDoctor />} />
+          <Route path="doctors" element={<ApproveDoctor />} />
         </Routes>
       </div>
     </div>

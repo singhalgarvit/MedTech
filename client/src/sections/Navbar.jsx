@@ -49,7 +49,7 @@ function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 flex justify-between items-center pl-2 py-2 md:p-4 bg-blue-800 text-white z-10">
+    <nav className="sticky top-0 flex justify-between items-center pl-2 py-2 md:p-4 bg-blue-900 text-white z-10">
       <h1 className="text-2xl font-bold">MedTech</h1>
       <div className="hidden md:flex gap-6">
         {data.map((item, index) => (
@@ -82,7 +82,7 @@ function Navbar() {
               <Link
                 to={item.link}
                 key={index}
-                className="flex flex-row items-center gap-1 px-4 py-2 hover:bg-gray-200"
+                className="flex flex-row items-center gap-2 px-4 py-2 active:bg-gray-200"
               >
                 <div>{item.icon}</div>
                 <div>{item.name}</div>

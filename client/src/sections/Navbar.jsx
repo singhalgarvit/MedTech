@@ -72,7 +72,7 @@ function Navbar() {
       <div className="md:hidden relative">
         <Button
           onclick={() => setOpen(!open)}
-          className="outline-none border-0 w-fit p-2 bg-none"
+          className="outline-none border-0 w-fit p-2 bg-transparent"
           value=""
           icon={<TiThMenuOutline size={25} />}
         />

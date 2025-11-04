@@ -26,7 +26,10 @@ app.use('/auth',authRoutes);
 
 
 import doctorRoutes from './src/routes/doctorRoutes.js'
-app.use('/doctor',doctorRoutes);   
+app.use('/doctor',doctorRoutes);  
+
+import chatRoutes from './src/routes/chatRoute.js'
+app.use('/chat',chatRoutes)
 
 const port = process.env.PORT;
 

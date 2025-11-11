@@ -13,12 +13,12 @@
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/client/$1"
-    },
-    {
       "source": "/api/(.*)",
       "destination": "/server/vercel.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/client/$1"
     }
   ]
 }

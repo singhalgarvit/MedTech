@@ -11,14 +11,26 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "rewrites": [
+    "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server/vercel.js"
+      "src": "/api/(.*)",
+      "dest": "/server/vercel.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/client/$1"
+      "src": "/static/(.*)",
+      "dest": "/client/static/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/client/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|gif))",
+      "dest": "/client/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/index.html"
     }
   ]
 }

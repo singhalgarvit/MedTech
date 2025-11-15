@@ -25,8 +25,48 @@ const getDoctorById = async(req, res) => {
 const createDoctor = async(req, res) => {
     try {
         const doctorData = req.body;
-        const newDoctor = await doctorService.createDoctor(doctorData);
+        const doctorEmail = req.user.email;
+        const newDoctor = await doctorService.createDoctor(doctorData,doctorEmail);
         res.status(201).json(newDoctor);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+}
+
+const viewAllRegisteredDoctor = async(req,res)=>{
+    try {
+        const getAllRegistered = await doctorService.viewAllRegisteredDoctors();
+        res.status(200).json(getAllRegistered);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+}
+
+const viewRegisteredDoctor = async(req,res)=>{
+    try {
+        const {userEmail} = req.params;
+        const getRegistered = await doctorService.viewRegisteredDoctor(userEmail);
+        res.status(200).json(getRegistered);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+}
+
+const verifyDoctor = async(req,res) =>{
+    try {
+        const { userEmail } = req.params;
+        const isDoctorVerified = await doctorService.verifyDoctor(userEmail);
+        res.status(200).json(isDoctorVerified)
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+}
+
+const rejectDoctor = async(req,res)=>{
+    try {
+        const {userEmail} = req.params;
+        const rejectDoctor = await doctorService.rejectDoctor(userEmail);
+        res.status(200).json(rejectDoctor)
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
@@ -35,5 +75,9 @@ const createDoctor = async(req, res) => {
 export default {
     getAllDoctors,
     getDoctorById,
-    createDoctor
+    createDoctor,
+    viewAllRegisteredDoctor,
+    viewRegisteredDoctor,
+    verifyDoctor,
+    rejectDoctor
 };

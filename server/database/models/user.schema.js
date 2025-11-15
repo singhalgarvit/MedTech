@@ -1,4 +1,4 @@
-  import mongoose, {mongo} from "mongoose";
+import mongoose, {mongo} from "mongoose";
 const {Schema} = mongoose;
 
 const UserSchema = new Schema(
@@ -23,9 +23,6 @@ const UserSchema = new Schema(
       required: true,
       minlength: 6,
     },
-    img: {
-      type: String,
-    },
     role: {
       type: String,
       required: true,
@@ -35,23 +32,9 @@ const UserSchema = new Schema(
     doctors: [
       {
         type: Schema.Types.ObjectId,
+        ref:"Doctor"
       },
     ],
-    doctorDetails: {
-      specialization: {type: String},
-      experience: {type: Number},
-      qualification: {type: String},
-      bio: {type: String},
-      clinicName: {type: String},
-      clinicAddress: {type: String},
-      clinicLocation: {type: String},
-      consultationFee: {type: Number},
-      availableDays: [{type: String}], //This will be the array of days the doctor is available
-      availableTime: {
-        start: {type: String}, // e.g. "10:00 AM"
-        end: {type: String}, // e.g. "5:00 PM"
-      },
-    },
 
     medicalHistory: [
       {

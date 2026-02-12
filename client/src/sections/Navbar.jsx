@@ -32,8 +32,8 @@ function Navbar() {
       icon: <FiUsers className="inline-block" size={22} />,
     },
     {
-      name: "Services",
-      link: "/services",
+      name: "Register",
+      link: "/register",
       icon: <RiUserSettingsLine className="inline-block" size={22} />,
     },
     {

@@ -18,7 +18,7 @@ function Doctors() {
         <h1 className="text-3xl font-bold">Meet Our Doctors</h1>
       </div> 
       {doctorsList && doctorsList.length > 0 ? (
-        <div className="doctor-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-8 text-center p-8 content-evenly justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-8 text-center p-8 content-evenly justify-items-center">
           {doctorsList.map((doctor) => (
             <DoctorCard key={doctor._id} doctor={doctor} />
           ))}

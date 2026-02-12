@@ -8,6 +8,7 @@ import Doctors from './pages/Doctors'
 import ProtectedRoute from './ProtectedRoute'
 import Dashboard from './pages/Dashboards/Dashboard'
 import Chatbot from './pages/Chatbot'
+import Register from './pages/Register'
 
 function Routers() {
   const {token} = useContext(AuthContext);
@@ -18,6 +19,7 @@ function Routers() {
             <Route path='/login' element={token?<Navigate to="/"/>:<Login/>}/>
             <Route path='/signup' element={token?<Navigate to="/"/>:<Signup/>}/>
             <Route path='/doctors' element={<Doctors/>}/>
+            <Route path='/register' element={<ProtectedRoute allowedRoles={['patient']}><Register/></ProtectedRoute>}/>
             <Route path='/chat' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Chatbot/></ProtectedRoute>}/>
             <Route path='/dashboard/*' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Dashboard/></ProtectedRoute>}/>
             <Route path='/*' element={<Navigate to="/"/>}/>

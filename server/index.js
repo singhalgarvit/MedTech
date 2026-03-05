@@ -1,6 +1,11 @@
 //configure dotenv to access env file
 import dotenv from 'dotenv';
-dotenv.config();                    
+dotenv.config();             
+
+import { setServers } from 'dns';
+if(process.env.environment ==='dev'){
+    setServers(['8.8.8.8', '8.8.4.4']);
+}
 
 import express from "express";      
 const app = express();

@@ -31,6 +31,21 @@ export async function sendMagicLinkEmail({ to, subject, html, text }) {
   });
 }
 
+/** Send a generic email (e.g. appointment confirmations). */
+export async function sendEmail({ to, subject, html, text }) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn("SMTP not configured. Email to " + to + ": " + (subject || text));
+    return;
+  }
+  await transporter.sendMail({
+    from,
+    to,
+    subject,
+    html: html || text,
+    text: text || (html && html.replace(/<[^>]*>/g, "")) || subject,
+  });
+}
+
 export function getSignupVerifyUrl(token) {
   return `${frontendUrl}/signup/verify?token=${encodeURIComponent(token)}`;
 }

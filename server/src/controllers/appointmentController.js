@@ -1,7 +1,12 @@
 import appointmentService from "../services/appointmentService.js";
 import User from "../../database/models/user.schema.js";
+import Doctor from "../../database/models/doctor.schema.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import {
+  sendAppointmentConfirmationToPatient,
+  sendAppointmentConfirmationToDoctor,
+} from "../../utils/appointmentEmails.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -98,6 +103,50 @@ const verifyPayment = async (req, res) => {
       razorpayPaymentId: paymentId,
     });
     pendingOrders.delete(orderId);
+
+    // Send confirmation emails (don't block response)
+    (async () => {
+      try {
+        const [patient, doctorUser] = await Promise.all([
+          User.findById(payload.patientId).select("name email").lean(),
+          User.findById(payload.doctorId).select("name email").lean(),
+        ]);
+        const doctorDoc = doctorUser?.email
+          ? await Doctor.findOne({ userEmail: doctorUser.email }).lean()
+          : null;
+        const dateStr = payload.dateStr;
+        const amountPaid = doctorDoc?.consultationFee;
+
+        await Promise.all([
+          sendAppointmentConfirmationToPatient({
+            patientEmail: patient?.email,
+            patientName: patient?.name,
+            doctorName: doctorUser?.name,
+            doctorEmail: doctorUser?.email,
+            doctorDoc,
+            dateStr,
+            timeSlot: payload.timeSlot,
+            notes: payload.notes,
+            amountPaid,
+            paymentId,
+            orderId,
+          }),
+          sendAppointmentConfirmationToDoctor({
+            doctorEmail: doctorUser?.email,
+            doctorName: doctorUser?.name,
+            doctorDoc,
+            patientName: patient?.name,
+            patientEmail: patient?.email,
+            dateStr,
+            timeSlot: payload.timeSlot,
+            notes: payload.notes,
+          }),
+        ]);
+      } catch (err) {
+        console.error("Appointment confirmation emails failed:", err.message);
+      }
+    })();
+
     res.status(201).json(appointment);
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error", details: err.message });

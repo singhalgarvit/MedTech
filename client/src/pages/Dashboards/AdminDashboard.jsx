@@ -1,11 +1,16 @@
+import { useState } from "react";
+import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import {
-  Link,
-  NavLink,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+  HiOutlineHome,
+  HiOutlineUserGroup,
+  HiOutlineUsers,
+  HiOutlineCalendar,
+  HiOutlineChat,
+  HiOutlineDocumentText,
+  HiOutlineCog,
+  HiOutlineMenu,
+  HiOutlineX,
+} from "react-icons/hi";
 import ApproveDoctor from "../../sections/AdminPage/ApproveDoctor";
 import AdminAppointments from "../../sections/AdminPage/AdminAppointments";
 import AdminMessages from "../../sections/AdminPage/AdminMessages";
@@ -13,72 +18,145 @@ import AdminPatients from "../../sections/AdminPage/AdminPatients";
 import AdminChatLogs from "../../sections/AdminPage/AdminChatLogs";
 import AdminHome from "../../sections/AdminPage/AdminHome";
 
+const NAV_ITEMS = [
+  { name: "Home", path: "/dashboard", icon: HiOutlineHome },
+  { name: "Doctors", path: "/dashboard/doctors", icon: HiOutlineUserGroup },
+  { name: "Patients", path: "/dashboard/patients", icon: HiOutlineUsers },
+  { name: "Appointments", path: "/dashboard/appointments", icon: HiOutlineCalendar },
+  { name: "Messages", path: "/dashboard/messages", icon: HiOutlineChat },
+  { name: "Chat logs", path: "/dashboard/chat-logs", icon: HiOutlineDocumentText },
+  // { name: "Settings", path: "/dashboard/settings", icon: HiOutlineCog },
+];
+
+function AdminSettingsPlaceholder() {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+      <HiOutlineCog className="mx-auto h-12 w-12 text-slate-300" />
+      <h2 className="mt-3 text-lg font-semibold text-slate-800">Settings</h2>
+      <p className="mt-1 text-sm text-slate-500">Settings page coming soon.</p>
+    </div>
+  );
+}
+
+function NavList({ onItemClick }) {
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        return (
+          <li key={item.path}>
+            <NavLink
+              to={item.path}
+              end={item.path === "/dashboard"}
+              onClick={onItemClick}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              <Icon className="h-5 w-5 shrink-0" aria-hidden />
+              {item.name}
+            </NavLink>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function AdminDashboard() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const currentPath = location.pathname;
-
-  const listItems = [
-    {name: "Home", path: "/dashboard"},
-    {name: "Doctors", path: "/dashboard/doctors"},
-    {name: "Patients", path: "/dashboard/patients"},
-    {name: "Appointments", path: "/dashboard/appointments"},
-    {name: "Messages", path: "/dashboard/messages"},
-    {name: "Chat logs", path: "/dashboard/chat-logs"},
-    {name: "Settings", path: "/dashboard/settings"},
-  ];
+  const currentLabel =
+    NAV_ITEMS.find((i) => i.path === location.pathname)?.name ?? "Home";
 
   return (
-    <div className="p-6 md:p-12">
-      <h1 className="text-2xl font-bold text-center mb-2">Admin DashBoard</h1>
+    <div className="min-h-[70vh] flex flex-col md:flex-row">
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex md:w-56 md:shrink-0 md:flex-col md:border-r md:border-slate-200 md:bg-slate-50/60">
+        <div className="sticky top-0 flex flex-col p-4">
+          <div className="mb-6 flex items-center gap-2 px-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <HiOutlineUserGroup className="h-5 w-5" />
+            </div>
+            <span className="font-semibold text-slate-800">Admin</span>
+          </div>
+          <nav className="flex-1">
+            <NavList />
+          </nav>
+        </div>
+      </aside>
 
-      {/* Desktop Navigation */}
-      <ul className="hidden sm:flex flex-row gap-3 w-fit border-0 py-2 px-4 shadow-[inset_0_0px_4px_rgba(0,0,0,0.6)] rounded-md">
-        {listItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            end
-            className={({isActive}) =>
-              `border-0 py-1 px-2 rounded-md transition-all ${
-                isActive
-                  ? "bg-gray-700 text-white"
-                  : "hover:bg-gray-500 hover:text-white"
-              }`
-            }
-          >
-            {item.name}
-          </NavLink>
-        ))}
-      </ul>
-
-      {/* Mobile Dropdown */}
-      <div className="sm:hidden mt-4 text-center">
-        <select
-          value={currentPath}
-          onChange={(e) => navigate(e.target.value)}
-          className="w-3/4 p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+      {/* Mobile header + menu trigger */}
+      <div className="md:hidden sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+          aria-label="Open menu"
         >
-          {listItems.map((item, index) => (
-            <option key={index} value={item.path}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+          <HiOutlineMenu className="h-6 w-6" />
+        </button>
+        <h1 className="text-lg font-semibold text-slate-800">{currentLabel}</h1>
+        <div className="w-10" aria-hidden />
       </div>
 
-      {/* Content Area */}
-      <div className="sm:shadow-[inset_0_0px_4px_rgba(0,0,0,0.6)] rounded-md p-1 md:p-4 my-6">
-        <Routes>
-          <Route path="/" element={<AdminHome />} />
-          <Route path="doctors" element={<ApproveDoctor />} />
-          <Route path="patients" element={<AdminPatients />} />
-          <Route path="appointments" element={<AdminAppointments />} />
-          <Route path="messages" element={<AdminMessages />} />
-          <Route path="chat-logs" element={<AdminChatLogs />} />
-        </Routes>
-      </div>
+      {/* Mobile slide-over menu */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm md:hidden"
+            aria-hidden
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed inset-y-0 left-0 z-40 w-72 border-r border-slate-200 bg-white shadow-xl md:hidden">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+              <span className="font-semibold text-slate-800">Admin</span>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close menu"
+              >
+                <HiOutlineX className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="p-4">
+              <NavList onItemClick={() => setMobileMenuOpen(false)} />
+            </nav>
+          </div>
+        </>
+      )}
+
+      {/* Main content */}
+      <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <header className="mb-6 hidden md:block">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
+            {currentLabel}
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            Manage your platform from here.
+          </p>
+        </header>
+
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm md:shadow-none md:border-0 md:bg-transparent md:rounded-none">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 lg:p-8 shadow-sm">
+            <Routes>
+              <Route path="/" element={<AdminHome />} />
+              <Route path="doctors" element={<ApproveDoctor />} />
+              <Route path="patients" element={<AdminPatients />} />
+              <Route path="appointments" element={<AdminAppointments />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="chat-logs" element={<AdminChatLogs />} />
+              <Route path="settings" element={<AdminSettingsPlaceholder />} />
+            </Routes>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

@@ -13,6 +13,7 @@ function Doctors() {
   const [qualification, setQualification] = useState("");
   const [filterOptions, setFilterOptions] = useState({ qualifications: [], locations: [] });
   const [loadingFilters, setLoadingFilters] = useState(true);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,11 +31,16 @@ function Doctors() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoadingDoctors(true);
     getDoctorsList({
       search: search.trim() || undefined,
       location: location.trim() || undefined,
       qualification: qualification.trim() || undefined,
+    }).finally(() => {
+      if (!cancelled) setLoadingDoctors(false);
     });
+    return () => { cancelled = true; };
   }, [search, location, qualification]);
 
   return (
@@ -81,7 +87,12 @@ function Doctors() {
         </div>
       </div>
 
-      {doctorsList && doctorsList.length > 0 ? (
+      {loadingDoctors ? (
+        <div className="flex justify-center items-center py-16">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" aria-hidden="true" />
+          <span className="sr-only">Loading doctors...</span>
+        </div>
+      ) : doctorsList && doctorsList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 text-center p-8 content-evenly justify-items-center">
           {doctorsList.map((doctor) => (
             <DoctorCard key={doctor._id} doctor={doctor} />

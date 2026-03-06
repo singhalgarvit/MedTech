@@ -6,7 +6,11 @@ import crypto from "crypto";
 import {
   sendAppointmentConfirmationToPatient,
   sendAppointmentConfirmationToDoctor,
+  buildGoogleCalendarUrl,
+  buildIcsContent,
 } from "../../utils/appointmentEmails.js";
+import Appointment from "../../database/models/appointment.schema.js";
+import jwt from "jsonwebtoken";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -116,6 +120,22 @@ const verifyPayment = async (req, res) => {
           : null;
         const dateStr = payload.dateStr;
         const amountPaid = doctorDoc?.consultationFee;
+        const location = [doctorDoc?.clinicName, doctorDoc?.clinicAddress].filter(Boolean).join(", ");
+        const googleCalendarUrl = buildGoogleCalendarUrl({
+          dateStr,
+          timeSlot: payload.timeSlot,
+          doctorName: doctorUser?.name,
+          location,
+        });
+        const calendarToken = jwt.sign(
+          { appointmentId: appointment._id.toString(), purpose: "calendar" },
+          process.env.jwt_Secret_key,
+          { expiresIn: "7d" }
+        );
+        const backendUrl = process.env.BACKEND_URL || process.env.API_URL || "";
+        const icsDownloadUrl = backendUrl
+          ? `${backendUrl.replace(/\/$/, "")}/appointment/calendar-event?token=${calendarToken}`
+          : null;
 
         await Promise.all([
           sendAppointmentConfirmationToPatient({
@@ -130,6 +150,8 @@ const verifyPayment = async (req, res) => {
             amountPaid,
             paymentId,
             orderId,
+            googleCalendarUrl,
+            icsDownloadUrl,
           }),
           sendAppointmentConfirmationToDoctor({
             doctorEmail: doctorUser?.email,
@@ -196,4 +218,42 @@ const getAllAppointmentsAdmin = async (req, res) => {
   }
 };
 
-export default { getSlots, createOrder, verifyPayment, getMyAppointments, getMyAppointmentsPatient, getAllAppointmentsAdmin };
+/** GET /appointment/calendar-event?token=... — returns ICS file for adding appointment to calendar. */
+const getCalendarEvent = async (req, res) => {
+  try {
+    const token = req.query.token;
+    if (!token) return res.status(400).json({ error: "Token required" });
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.jwt_Secret_key);
+    } catch {
+      return res.status(400).json({ error: "Invalid or expired link" });
+    }
+    if (decoded.purpose !== "calendar" || !decoded.appointmentId) {
+      return res.status(400).json({ error: "Invalid link" });
+    }
+    const appointment = await Appointment.findById(decoded.appointmentId)
+      .populate("doctorId", "name email")
+      .lean();
+    if (!appointment) return res.status(404).json({ error: "Appointment not found" });
+    const doctorUser = appointment.doctorId;
+    const doctorDoc = doctorUser?.email
+      ? await Doctor.findOne({ userEmail: doctorUser.email }).select("clinicName clinicAddress clinicLocation").lean()
+      : null;
+    const date = appointment.date;
+    const dateStr = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+    const timeSlot = appointment.timeSlot;
+    const title = "Consultation with Dr. " + (doctorUser?.name || "Doctor");
+    const location = [doctorDoc?.clinicName, doctorDoc?.clinicAddress].filter(Boolean).join(", ");
+    const description = "MedTech appointment. Bring your previous reports if any.";
+    const ics = buildIcsContent({ title, description, location, dateStr, timeSlot });
+    if (!ics) return res.status(500).json({ error: "Could not generate calendar file" });
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="medtech-appointment.ics"');
+    res.send(ics);
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
+};
+
+export default { getSlots, createOrder, verifyPayment, getMyAppointments, getMyAppointmentsPatient, getAllAppointmentsAdmin, getCalendarEvent };

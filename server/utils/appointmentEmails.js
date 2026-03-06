@@ -14,10 +14,88 @@ function formatDate(d) {
   });
 }
 
+/** Parse dateStr (YYYY-MM-DD) + timeSlot (HH:mm or HH:mm AM/PM) as IST, return { start, end } Date objects (end = start + 30 min). */
+function parseAppointmentDateTime(dateStr, timeSlot, durationMinutes = 30) {
+  if (!dateStr || !timeSlot) return null;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  let hour = 0;
+  let min = 0;
+  const slot = String(timeSlot).trim();
+  const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (match) {
+    hour = parseInt(match[1], 10);
+    min = parseInt(match[2], 10);
+    const period = (match[3] || "").toUpperCase();
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
+  }
+  const istDateStr = `${String(y)}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}T${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}:00+05:30`;
+  const start = new Date(istDateStr);
+  if (isNaN(start.getTime())) return null;
+  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+  return { start, end };
+}
+
+/** Format Date to YYYYMMDDTHHmmSSZ for Google Calendar. */
+function toGoogleCalendarTime(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const y = d.getUTCFullYear();
+  const mo = pad(d.getUTCMonth() + 1);
+  const day = pad(d.getUTCDate());
+  const h = pad(d.getUTCHours());
+  const min = pad(d.getUTCMinutes());
+  const s = pad(d.getUTCSeconds());
+  return `${y}${mo}${day}T${h}${min}${s}Z`;
+}
+
+/** Build Google Calendar "Add to Calendar" URL for this appointment. */
+export function buildGoogleCalendarUrl({ dateStr, timeSlot, doctorName, location }) {
+  const parsed = parseAppointmentDateTime(dateStr, timeSlot);
+  if (!parsed) return null;
+  const title = encodeURIComponent("Consultation with Dr. " + (doctorName || "Doctor"));
+  const startStr = toGoogleCalendarTime(parsed.start);
+  const endStr = toGoogleCalendarTime(parsed.end);
+  const dates = encodeURIComponent(`${startStr}/${endStr}`);
+  const details = encodeURIComponent("MedTech appointment. Bring your previous reports if any.");
+  const loc = encodeURIComponent(location || "");
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${loc}`;
+}
+
+/** Escape text for ICS VALUE (backslash, semicolon, comma). */
+function icsEscape(str) {
+  if (str == null) return "";
+  return String(str).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+}
+
+/** Build ICS file content for the appointment (UTC times). */
+export function buildIcsContent({ title, description, location, dateStr, timeSlot }) {
+  const parsed = parseAppointmentDateTime(dateStr, timeSlot);
+  if (!parsed) return null;
+  const startStr = toGoogleCalendarTime(parsed.start);
+  const endStr = toGoogleCalendarTime(parsed.end);
+  const uid = `medtech-${dateStr}-${(timeSlot || "").replace(/:/g, "")}@medtech`;
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//MedTech//Appointment//EN",
+    "BEGIN:VEVENT",
+    "UID:" + uid,
+    "DTSTAMP:" + toGoogleCalendarTime(new Date()),
+    "DTSTART:" + startStr,
+    "DTEND:" + endStr,
+    "SUMMARY:" + icsEscape(title),
+    "DESCRIPTION:" + icsEscape(description),
+    "LOCATION:" + icsEscape(location),
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.join("\r\n");
+}
+
 /**
- * Patient email: receipt-style with doctor details, venue, and payment info.
+ * Patient email: receipt-style with doctor details, venue, payment info, and Add to Calendar.
  */
-function buildPatientEmailHtml({ patientName, doctorName, doctorEmail, doctorDoc, dateStr, timeSlot, notes, amountPaid, paymentId, orderId }) {
+function buildPatientEmailHtml({ patientName, doctorName, doctorEmail, doctorDoc, dateStr, timeSlot, notes, amountPaid, paymentId, orderId, googleCalendarUrl, icsDownloadUrl }) {
   const dateFormatted = formatDate(new Date(dateStr));
   const feeDisplay = amountPaid != null ? `₹ ${Number(amountPaid).toFixed(2)}` : "—";
   return `
@@ -65,6 +143,17 @@ function buildPatientEmailHtml({ patientName, doctorName, doctorEmail, doctorDoc
           <tr><td style="padding:6px 0; color:#6b7280;">Amount paid</td><td style="padding:6px 0; font-weight:600; color:#059669;">${feeDisplay}</td></tr>
           ${orderId ? `<tr><td style="padding:6px 0; color:#6b7280;">Order ID</td><td style="padding:6px 0; font-family:monospace; font-size:12px;">${orderId}</td></tr>` : ""}
           ${paymentId ? `<tr><td style="padding:6px 0; color:#6b7280;">Payment ID</td><td style="padding:6px 0; font-family:monospace; font-size:12px;">${paymentId}</td></tr>` : ""}
+        </table>
+      </div>
+
+      <div style="background:#eff6ff; border-radius:8px; padding:20px; margin-bottom:20px; border:1px solid #bfdbfe;">
+        <h2 style="margin:0 0 12px; font-size:14px; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px;">Add to calendar</h2>
+        <p style="margin:0 0 12px; color:#374151; font-size:14px;">Don't forget your appointment — add it to your calendar at the scheduled time.</p>
+        <table style="border-collapse:collapse;">
+          <tr>
+            ${googleCalendarUrl ? `<td style="padding:0 12px 8px 0;"><a href="${googleCalendarUrl}" style="display:inline-block; padding:10px 18px; background:#2563eb; color:#fff !important; text-decoration:none; border-radius:8px; font-weight:600; font-size:14px;">Add to Google Calendar</a></td>` : ""}
+            ${icsDownloadUrl ? `<td style="padding:0 0 8px;"><a href="${icsDownloadUrl}" style="display:inline-block; padding:10px 18px; background:#374151; color:#fff !important; text-decoration:none; border-radius:8px; font-weight:600; font-size:14px;">Download .ics (Outlook / Apple)</a></td>` : ""}
+          </tr>
         </table>
       </div>
 
@@ -145,6 +234,8 @@ export async function sendAppointmentConfirmationToPatient(options) {
     amountPaid,
     paymentId,
     orderId,
+    googleCalendarUrl,
+    icsDownloadUrl,
   } = options;
   if (!patientEmail) return;
   const html = buildPatientEmailHtml({
@@ -158,6 +249,8 @@ export async function sendAppointmentConfirmationToPatient(options) {
     amountPaid,
     paymentId,
     orderId,
+    googleCalendarUrl,
+    icsDownloadUrl,
   });
   await sendEmail({
     to: patientEmail,

@@ -11,6 +11,12 @@ import { AuthContext } from "./context/authContext";
 import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
+import Services from "./pages/Services";
+import Help from "./pages/Help";
+import FAQ from "./pages/FAQ";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import ProtectedRoute from "./ProtectedRoute";
 import Dashboard from "./pages/Dashboards/Dashboard";
 import Chatbot from "./pages/Chatbot";
@@ -30,6 +36,12 @@ function Routers() {
             <Route path="/reset-password" element={token ? <Navigate to="/" /> : <ResetPassword />} />
             <Route path='/doctors' element={<Doctors/>}/>
             <Route path='/doctors/:id' element={<DoctorProfile/>}/>
+            <Route path='/about' element={<About/>}/>
+            <Route path='/services' element={<Services/>}/>
+            <Route path='/help' element={<Help/>}/>
+            <Route path='/faqs' element={<FAQ/>}/>
+            <Route path='/privacy-policy' element={<PrivacyPolicy/>}/>
+            <Route path='/terms-of-service' element={<TermsOfService/>}/>
             <Route path='/contact' element={<Contact/>}/>
             <Route path='/register' element={<ProtectedRoute allowedRoles={['patient']}><Register/></ProtectedRoute>}/>
             <Route path='/chat' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Chatbot/></ProtectedRoute>}/>

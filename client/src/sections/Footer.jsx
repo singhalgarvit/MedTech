@@ -8,19 +8,19 @@ function Footer() {
         {
             title: "Quick Links",  
             links: [
-                { name: "Home", to: "#home" },
-                { name: "About", to: "#about" },
-                { name: "Services", to: "#services" },
+                { name: "Home", to: "/" },
+                { name: "About", to: "/about" },
+                { name: "Services", to: "/services" },
                 { name: "Contact", to: "/contact" }
             ]
         },
         {
             title: "Support",
             links: [
-                { name: "Help", to: "#help" },
-                { name: "FAQs", to: "#faqs" },
-                { name: "Privacy Policy", to: "#privacy-policy" },
-                { name: "Terms of Service", to: "#terms-of-service" }
+                { name: "Help", to: "/help" },
+                { name: "FAQs", to: "/faqs" },
+                { name: "Privacy Policy", to: "/privacy-policy" },
+                { name: "Terms of Service", to: "/terms-of-service" }
             ]
         },
         {

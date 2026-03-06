@@ -1,4 +1,4 @@
-import { getChatByUserId, saveChat } from "../services/chatService.js";
+import { getChatByUserId, saveChat, getAllChatLogsForAdmin } from "../services/chatService.js";
 import User from "../../database/models/user.schema.js";
 
 const resolveUserId = async (req) => {
@@ -37,5 +37,14 @@ export const postChat = async (req, res) => {
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to save chat", details: err.message });
+  }
+};
+
+export const getChatLogsAdmin = async (req, res) => {
+  try {
+    const logs = await getAllChatLogsForAdmin();
+    res.status(200).json(logs);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load chat logs", details: err.message });
   }
 };

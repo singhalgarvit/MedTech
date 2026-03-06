@@ -10,6 +10,7 @@ import ApproveDoctor from "../../sections/AdminPage/ApproveDoctor";
 import AdminAppointments from "../../sections/AdminPage/AdminAppointments";
 import AdminMessages from "../../sections/AdminPage/AdminMessages";
 import AdminPatients from "../../sections/AdminPage/AdminPatients";
+import AdminChatLogs from "../../sections/AdminPage/AdminChatLogs";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function AdminDashboard() {
     {name: "Patients", path: "/dashboard/patients"},
     {name: "Appointments", path: "/dashboard/appointments"},
     {name: "Messages", path: "/dashboard/messages"},
+    {name: "Chat logs", path: "/dashboard/chat-logs"},
     {name: "Settings", path: "/dashboard/settings"},
   ];
 
@@ -73,6 +75,7 @@ function AdminDashboard() {
           <Route path="patients" element={<AdminPatients />} />
           <Route path="appointments" element={<AdminAppointments />} />
           <Route path="messages" element={<AdminMessages />} />
+          <Route path="chat-logs" element={<AdminChatLogs />} />
         </Routes>
       </div>
     </div>

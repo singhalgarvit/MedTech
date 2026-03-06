@@ -5,7 +5,7 @@ const storage = multer.memoryStorage();
 
 const uploadFields = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB per file
   fileFilter: (req, file, cb) => {
     const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (allowed.includes(file.mimetype)) {
@@ -26,7 +26,7 @@ export const doctorUpload = (req, res, next) => {
   uploadFields(req, res, (err) => {
     if (err) {
       if (err.code === "LIMIT_FILE_SIZE") {
-        return res.status(413).json({ error: "File too large. Max 5MB per file." });
+        return res.status(413).json({ error: "File too large. Max 2MB per image." });
       }
       return res.status(400).json({ error: err.message || "File upload failed." });
     }

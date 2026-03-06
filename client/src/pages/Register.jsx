@@ -6,6 +6,13 @@ import { doctorSchema } from "../schemas/doctorSchema";
 import { registerAsDoctor } from "../services/doctorService";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function Register() {
   const [submitError, setSubmitError] = useState("");
@@ -15,6 +22,8 @@ function Register() {
     register,
     handleSubmit,
     setValue,
+    setError,
+    clearErrors,
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -34,9 +43,42 @@ function Register() {
     setValue("availableDays", next, { shouldValidate: true });
   };
 
+  const handleFileChange = (field, file) => {
+    const label = field === "img" ? "Profile image" : "ID card image";
+    clearErrors(field);
+    if (!file) {
+      setValue(field, null, { shouldValidate: true });
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setValue(field, null, { shouldValidate: true });
+      setError(field, {
+        type: "maxSize",
+        message: `${label} is too large (${formatFileSize(file.size)}). Maximum size is 2 MB.`,
+      });
+      return;
+    }
+    setValue(field, file, { shouldValidate: true });
+  };
+
   const onSubmit = async (data) => {
     setSubmitError("");
     setSubmitSuccess(false);
+    if (data.img?.size > MAX_FILE_SIZE || data.doctorIdCard?.size > MAX_FILE_SIZE) {
+      if (data.img?.size > MAX_FILE_SIZE) {
+        setError("img", {
+          type: "maxSize",
+          message: `Profile image is too large (${formatFileSize(data.img.size)}). Maximum size is 2 MB.`,
+        });
+      }
+      if (data.doctorIdCard?.size > MAX_FILE_SIZE) {
+        setError("doctorIdCard", {
+          type: "maxSize",
+          message: `ID card image is too large (${formatFileSize(data.doctorIdCard.size)}). Maximum size is 2 MB.`,
+        });
+      }
+      return;
+    }
     const formData = new FormData();
     formData.append("img", data.img);
     formData.append("doctorIdCard", data.doctorIdCard);
@@ -84,9 +126,11 @@ function Register() {
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
             className="border-2 px-2 py-1 rounded-md w-full"
-            onChange={(e) => setValue("img", e.target.files?.[0] ?? null, { shouldValidate: true })}
+            onChange={(e) => handleFileChange("img", e.target.files?.[0] ?? null)}
           />
-          {errors.img && <p className="text-red-500 text-sm">{errors.img.message}</p>}
+          {errors.img && (
+            <p className="text-red-500 text-sm mt-1">{errors.img.message}</p>
+          )}
         </div>
         <div>
           <label className="block mb-1">ID card image</label>
@@ -95,10 +139,12 @@ function Register() {
             accept="image/jpeg,image/jpg,image/png,image/webp"
             className="border-2 px-2 py-1 rounded-md w-full"
             onChange={(e) =>
-              setValue("doctorIdCard", e.target.files?.[0] ?? null, { shouldValidate: true })
+              handleFileChange("doctorIdCard", e.target.files?.[0] ?? null)
             }
           />
-          {errors.doctorIdCard && <p className="text-red-500 text-sm">{errors.doctorIdCard.message}</p>}
+          {errors.doctorIdCard && (
+            <p className="text-red-500 text-sm mt-1">{errors.doctorIdCard.message}</p>
+          )}
         </div>
 
         <InputField

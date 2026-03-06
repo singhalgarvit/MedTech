@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getMyAppointmentsForPatient } from "../../services/appointmentService";
+import { getAllAppointmentsForAdmin } from "../../services/appointmentService";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -13,7 +12,7 @@ function formatDate(d) {
   });
 }
 
-function PatientDashboard() {
+function AdminAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,7 +21,7 @@ function PatientDashboard() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await getMyAppointmentsForPatient();
+        const data = await getAllAppointmentsForAdmin();
         if (!cancelled) setAppointments(Array.isArray(data) ? data : []);
       } catch (err) {
         if (!cancelled) setError(err.message || "Failed to load appointments");
@@ -34,24 +33,26 @@ function PatientDashboard() {
   }, []);
 
   return (
-    <div className="p-6 md:p-12">
-      <h1 className="text-2xl font-bold text-center mb-2">Patient Dashboard</h1>
-      <p className="text-center text-gray-600 mb-6">Your booked appointments with doctors</p>
+    <div>
+      <h2 className="text-xl font-semibold mb-4">All Appointments</h2>
+      <p className="text-gray-600 mb-4">Patients and their appointments with respective doctors</p>
 
-      {loading && (
-        <p className="text-center text-gray-500">Loading appointments...</p>
-      )}
-      {error && (
-        <p className="text-center text-red-600 mb-4">{error}</p>
-      )}
+      {loading && <p className="text-gray-500">Loading appointments...</p>}
+      {error && <p className="text-red-600 mb-4">{error}</p>}
       {!loading && !error && appointments.length === 0 && (
-        <p className="text-center text-gray-500">No appointments yet. Book one from the Doctors page.</p>
+        <p className="text-gray-500">No appointments in the system.</p>
       )}
       {!loading && !error && appointments.length > 0 && (
         <div className="overflow-x-auto rounded-lg border border-gray-200 shadow">
           <table className="min-w-full divide-y divide-gray-200 bg-white">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Patient
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Patient Email
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Doctor
                 </th>
@@ -70,14 +71,17 @@ function PatientDashboard() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Notes
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Profile
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {appointments.map((apt) => (
                 <tr key={apt._id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {apt.patient?.name ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {apt.patient?.email ?? "—"}
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {apt.doctor?.name ?? "—"}
                   </td>
@@ -108,18 +112,6 @@ function PatientDashboard() {
                   <td className="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate" title={apt.notes}>
                     {apt.notes || "—"}
                   </td>
-                  <td className="px-4 py-3">
-                    {apt.doctor?._id ? (
-                      <Link
-                        to={`/doctors/${apt.doctor._id}`}
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        View doctor
-                      </Link>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -130,4 +122,4 @@ function PatientDashboard() {
   );
 }
 
-export default PatientDashboard;
+export default AdminAppointments;

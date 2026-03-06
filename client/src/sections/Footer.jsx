@@ -11,7 +11,7 @@ function Footer() {
                 { name: "Home", to: "#home" },
                 { name: "About", to: "#about" },
                 { name: "Services", to: "#services" },
-                { name: "Contact", to: "#contact" }
+                { name: "Contact", to: "/contact" }
             ]
         },
         {

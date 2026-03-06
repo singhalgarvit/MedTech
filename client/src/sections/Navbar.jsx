@@ -3,6 +3,7 @@ import LogoutButton from "../components/LogoutButton";
 import {Link, NavLink} from "react-router-dom";
 import {AuthContext} from "../context/authContext";
 import {getFullName} from "../utils/getName";
+import getRole from "../utils/getRole";
 import {CgProfile} from "react-icons/cg";
 import Button from "../components/Button";
 import {TiThMenuOutline} from "react-icons/ti";
@@ -12,6 +13,7 @@ import {RiUserSettingsLine, RiContactsBook2Line} from "react-icons/ri";
 
 function Navbar() {
   const {token} = useContext(AuthContext);
+  const role = token ? getRole() : null;
   let FullName;
   if (!token) {
     FullName = "";
@@ -31,11 +33,9 @@ function Navbar() {
       link: "/doctors",
       icon: <FiUsers className="inline-block" size={22} />,
     },
-    {
-      name: "Register",
-      link: "/register",
-      icon: <RiUserSettingsLine className="inline-block" size={22} />,
-    },
+    ...(role !== "doctor" && role !== "admin"
+      ? [{ name: "Register", link: "/register", icon: <RiUserSettingsLine className="inline-block" size={22} /> }]
+      : []),
     {
       name: "Contact",
       link: "/contact",

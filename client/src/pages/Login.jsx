@@ -1,13 +1,13 @@
-import {useForm} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import InputField from "../components/InputField";
 import FormWrapper from "../components/FormWrapper";
 import Button from "../components/Button";
-import {Link} from "react-router-dom";
-import {useAuth} from "../hooks/useAuth";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {loginSchema} from "../schemas/authSchema";
-import {useState} from "react";
-import {FaEye, FaEyeSlash} from "react-icons/fa";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../schemas/authSchema";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
   const {
@@ -20,12 +20,15 @@ function Login() {
     resolver: zodResolver(loginSchema),
   });
 
-  const {handleLogin} = useAuth();
+  const { handleLogin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
 
   const submitForm = async (data) => {
     try {
-      const res = await handleLogin(data);
+      await handleLogin(data);
+      navigate(location.state?.from || "/", { replace: true });
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message;
       setError("loginError", {message: errMsg});

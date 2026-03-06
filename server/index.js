@@ -11,14 +11,20 @@ import express from "express";
 const app = express();
 
 import bodyParser from 'body-parser';           //body-parser is used to streamline input and parsing the raw data coming from input and manipulate req.body
-import cors from 'cors'                         //Must - used to access cross origin request access
-import connectDB from './database/index.js'
+import cors from 'cors';                        //Must - used to access cross origin request access
+import connectDB from './database/index.js';
 import vercelConfig from './middleware/vercelConfig.js';
 await connectDB();
 
+// CORS: allow frontend origin and preflight (OPTIONS)
+app.use(cors({
+  origin: true, // reflect request origin (e.g. http://localhost:5173)
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'token'],
+  credentials: true,
+}));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(vercelConfig);
 
 app.get('/',(req,res)=>{
@@ -31,7 +37,14 @@ app.use('/auth',authRoutes);
 
 
 import doctorRoutes from './src/routes/doctorRoutes.js'
-app.use('/doctor',doctorRoutes);   
+import appointmentRoutes from './src/routes/appointmentRoutes.js';
+import contactRoutes from './src/routes/contactRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
+
+app.use('/doctor', doctorRoutes);
+app.use('/appointment', appointmentRoutes);
+app.use('/contact', contactRoutes);
+app.use('/user', userRoutes);
 
 const port = process.env.PORT;
 

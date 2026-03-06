@@ -5,6 +5,8 @@ import Signup from './pages/Signup'
 import { useContext } from 'react'
 import { AuthContext } from './context/authContext'
 import Doctors from './pages/Doctors'
+import DoctorProfile from './pages/DoctorProfile'
+import Contact from './pages/Contact'
 import ProtectedRoute from './ProtectedRoute'
 import Dashboard from './pages/Dashboards/Dashboard'
 import Chatbot from './pages/Chatbot'
@@ -19,6 +21,8 @@ function Routers() {
             <Route path='/login' element={token?<Navigate to="/"/>:<Login/>}/>
             <Route path='/signup' element={token?<Navigate to="/"/>:<Signup/>}/>
             <Route path='/doctors' element={<Doctors/>}/>
+            <Route path='/doctors/:id' element={<DoctorProfile/>}/>
+            <Route path='/contact' element={<Contact/>}/>
             <Route path='/register' element={<ProtectedRoute allowedRoles={['patient']}><Register/></ProtectedRoute>}/>
             <Route path='/chat' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Chatbot/></ProtectedRoute>}/>
             <Route path='/dashboard/*' element={<ProtectedRoute allowedRoles={['admin','doctor','patient']}><Dashboard/></ProtectedRoute>}/>

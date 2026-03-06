@@ -10,7 +10,7 @@ const createUser = async(userData)=>{
     const user = new User({_id,name,email,password});
     await user.save();
     const role = user.role;
-    return {name,email,role};
+    return { _id: user._id, name, email, role };
 }
 
 const getUser = async(userData)=>{
@@ -20,7 +20,7 @@ const getUser = async(userData)=>{
         return {name,email,role};
     }
     else{
-        throw new Error("Password is Incorrect");;
+        throw new Error("Password is Incorrect");
     }
 }
 export default {createUser,getUser}

@@ -5,18 +5,13 @@ import {getDoctors} from "../services/doctorService";
 export const useDoctors = () => {
   const {doctorsList, setDoctorsList} = useContext(DoctorContext);
 
-  const getDoctorsList = async () => {
-    if (doctorsList && doctorsList.length > 0) {
-      return doctorsList;
-    }
-
+  const getDoctorsList = async (filters = {}) => {
     try {
-      const res = await getDoctors();
+      const res = await getDoctors(filters);
       setDoctorsList(res);
       return res;
     } catch (err) {
-      // throw err;
-      console.log(err.message)
+      console.log(err.message);
     }
   };
 

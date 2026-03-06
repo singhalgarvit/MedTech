@@ -6,8 +6,10 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import CreateDoctor from "../../sections/AdminPage/CreateDoctor";
 import ApproveDoctor from "../../sections/AdminPage/ApproveDoctor";
+import AdminAppointments from "../../sections/AdminPage/AdminAppointments";
+import AdminMessages from "../../sections/AdminPage/AdminMessages";
+import AdminPatients from "../../sections/AdminPage/AdminPatients";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ function AdminDashboard() {
     {name: "Doctors", path: "/dashboard/doctors"},
     {name: "Patients", path: "/dashboard/patients"},
     {name: "Appointments", path: "/dashboard/appointments"},
+    {name: "Messages", path: "/dashboard/messages"},
     {name: "Settings", path: "/dashboard/settings"},
   ];
 
@@ -67,6 +70,9 @@ function AdminDashboard() {
         <Routes>
           <Route path="/" element={<div>Admin Home</div>} />
           <Route path="doctors" element={<ApproveDoctor />} />
+          <Route path="patients" element={<AdminPatients />} />
+          <Route path="appointments" element={<AdminAppointments />} />
+          <Route path="messages" element={<AdminMessages />} />
         </Routes>
       </div>
     </div>

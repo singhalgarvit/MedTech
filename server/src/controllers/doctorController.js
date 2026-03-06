@@ -2,7 +2,17 @@ import doctorService from '../services/doctorService.js';
 
 const getAllDoctors = async(req, res) => {
     try {
-        const data = await doctorService.getAllDoctors();
+        const { search, location, qualification } = req.query;
+        const data = await doctorService.getAllDoctors({ search, location, qualification });
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const getFilterOptions = async(req, res) => {
+    try {
+        const data = await doctorService.getFilterOptions();
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
@@ -72,12 +82,30 @@ const rejectDoctor = async(req,res)=>{
     }
 }
 
+const deleteDoctor = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await doctorService.deleteDoctorById(id);
+        if (!result) {
+            return res.status(404).json({ error: 'Doctor not found' });
+        }
+        if (result.error) {
+            return res.status(400).json({ error: result.error });
+        }
+        res.status(200).json({ message: 'Doctor deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+}
+
 export default {
     getAllDoctors,
     getDoctorById,
+    getFilterOptions,
     createDoctor,
     viewAllRegisteredDoctor,
     viewRegisteredDoctor,
     verifyDoctor,
-    rejectDoctor
+    rejectDoctor,
+    deleteDoctor
 };

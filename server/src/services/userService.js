@@ -1,5 +1,62 @@
 import User from "../../database/models/user.schema.js";
 import Appointment from "../../database/models/appointment.schema.js";
+import Doctor from "../../database/models/doctor.schema.js";
+import Chat from "../../database/models/chat.schema.js";
+
+/** Get start/end of today in UTC (for appointment date comparison). */
+function getTodayRangeUTC() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000 - 1);
+  return { start, end };
+}
+
+/** Get start/end of current month in UTC. */
+function getThisMonthRangeUTC() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+  return { start, end };
+}
+
+/** Admin dashboard stats: counts for patients, doctors, appointments, AI searches, new users. */
+export const getAdminStats = async () => {
+  const { start: todayStart, end: todayEnd } = getTodayRangeUTC();
+  const { start: monthStart, end: monthEnd } = getThisMonthRangeUTC();
+
+  const [
+    totalPatients,
+    totalDoctors,
+    appointmentsToday,
+    appointmentsThisMonth,
+    totalAiSearchesResult,
+    newUsersToday,
+    newUsersThisMonth,
+  ] = await Promise.all([
+    User.countDocuments({ role: "patient" }),
+    Doctor.countDocuments({ isVerified: true }),
+    Appointment.countDocuments({ date: { $gte: todayStart, $lte: todayEnd }, status: { $ne: "cancelled" } }),
+    Appointment.countDocuments({ date: { $gte: monthStart, $lte: monthEnd }, status: { $ne: "cancelled" } }),
+    Chat.aggregate([
+      { $project: { userMessages: { $size: { $filter: { input: "$messages", as: "m", cond: { $eq: ["$$m.role", "user"] } } } } } },
+      { $group: { _id: null, total: { $sum: "$userMessages" } } },
+    ]),
+    User.countDocuments({ createdAt: { $gte: todayStart, $lte: todayEnd } }),
+    User.countDocuments({ createdAt: { $gte: monthStart, $lte: monthEnd } }),
+  ]);
+
+  const totalAiSearches = totalAiSearchesResult[0]?.total ?? 0;
+
+  return {
+    totalPatients,
+    totalDoctors,
+    appointmentsToday,
+    appointmentsThisMonth,
+    totalAiSearches,
+    newUsersToday,
+    newUsersThisMonth,
+  };
+};
 
 /** Get all patients (role === 'patient') for admin. Excludes password. */
 export const getAllPatients = async () => {

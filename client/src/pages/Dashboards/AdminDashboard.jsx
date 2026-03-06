@@ -11,6 +11,7 @@ import AdminAppointments from "../../sections/AdminPage/AdminAppointments";
 import AdminMessages from "../../sections/AdminPage/AdminMessages";
 import AdminPatients from "../../sections/AdminPage/AdminPatients";
 import AdminChatLogs from "../../sections/AdminPage/AdminChatLogs";
+import AdminHome from "../../sections/AdminPage/AdminHome";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ function AdminDashboard() {
       {/* Content Area */}
       <div className="sm:shadow-[inset_0_0px_4px_rgba(0,0,0,0.6)] rounded-md p-1 md:p-4 my-6">
         <Routes>
-          <Route path="/" element={<div>Admin Home</div>} />
+          <Route path="/" element={<AdminHome />} />
           <Route path="doctors" element={<ApproveDoctor />} />
           <Route path="patients" element={<AdminPatients />} />
           <Route path="appointments" element={<AdminAppointments />} />

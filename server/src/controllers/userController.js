@@ -1,4 +1,13 @@
-import {getAllPatients, deletePatientById} from "../services/userService.js";
+import { getAllPatients, deletePatientById, getAdminStats } from "../services/userService.js";
+
+export const getAdminStatsController = async (req, res) => {
+  try {
+    const stats = await getAdminStats();
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+};
 
 export const getAllPatientsController = async (req, res) => {
   try {

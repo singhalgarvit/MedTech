@@ -22,7 +22,7 @@ export default function Chatbot() {
     setMessage("");
     const apiKey = import.meta.env.VITE_ai_api;
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({model: "gemini-2.0-flash"});
+    const model = genAI.getGenerativeModel({model: "gemini-2.5-flash-lite"});
     const systemPrompt = `
       You are Dr. MedTechBot developed by Garvit & team — a friendly and professional **medical advisor**.
       Respond as a certified doctor who gives evidence-based, empathetic answers.

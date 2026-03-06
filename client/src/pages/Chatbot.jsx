@@ -2,16 +2,27 @@ import {useEffect, useRef, useState} from "react";
 import Button from "../components/Button";
 import {BsSend} from "react-icons/bs";
 import {GoogleGenerativeAI} from "@google/generative-ai";
+import {getChatHistory, saveChatInBackground} from "../services/chatService.js";
 
 export default function Chatbot() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const chatEndRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({behavior: "smooth"});
   }, [chat]);
+
+  useEffect(() => {
+    getChatHistory()
+      .then(({messages}) => {
+        if (messages?.length) setChat(messages);
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoaded(true));
+  }, []);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -35,26 +46,22 @@ export default function Chatbot() {
       setLoading(true);
       const result = await model.generateContent(prompt);
       const response = result.response.text();
-      setChat([...newChat, {role: "assistant", content: response}]);
+      const updatedChat = [...newChat, {role: "assistant", content: response}];
+      setChat(updatedChat);
+      saveChatInBackground(updatedChat);
     } catch (err) {
-      setChat([
+      const fallbackChat = [
         ...newChat,
         {
           role: "assistant",
           content: "Something went wrong. Please try again...",
         },
-      ]);
+      ];
+      setChat(fallbackChat);
+      saveChatInBackground(fallbackChat);
     } finally {
       setLoading(false);
     }
-
-    // const res = await fetch(, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ message }),
-    // });
-
-    // const data = await res.json();
   };
 
   return (
@@ -62,7 +69,11 @@ export default function Chatbot() {
       <div className="md:w-3/4 bg-white rounded-lg flex flex-col h-[85vh] md:h-[75vh] shadow-sm">
         {/* Chat area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
-          {chat.length === 0 ? (
+          {!historyLoaded && chat.length === 0 ? (
+            <p className="text-gray-500 text-center italic">
+              Loading your chat...
+            </p>
+          ) : chat.length === 0 ? (
             <p className="text-gray-500 text-center italic">
               How can I help you today ?
             </p>

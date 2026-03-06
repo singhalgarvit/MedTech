@@ -40,11 +40,13 @@ import doctorRoutes from './src/routes/doctorRoutes.js'
 import appointmentRoutes from './src/routes/appointmentRoutes.js';
 import contactRoutes from './src/routes/contactRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
+import chatRoutes from './src/routes/chatRoutes.js';
 
 app.use('/doctor', doctorRoutes);
 app.use('/appointment', appointmentRoutes);
 app.use('/contact', contactRoutes);
 app.use('/user', userRoutes);
+app.use('/chat', chatRoutes);
 
 const port = process.env.PORT;
 

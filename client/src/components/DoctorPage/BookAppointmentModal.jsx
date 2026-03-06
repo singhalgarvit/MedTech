@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { getSlots, createOrder, verifyPayment } from "../../services/appointmentService";
+import { SlotsSkeleton } from "../Skeleton";
 
 function formatDateForInput(date) {
   const d = new Date(date);
@@ -152,7 +153,7 @@ function BookAppointmentModal({ doctor, onClose, onSuccess }) {
 
         <label className="block font-medium mb-1">Time</label>
         {loadingSlots ? (
-          <p className="text-gray-500 mb-4">Loading slots...</p>
+          <SlotsSkeleton />
         ) : slotsError ? (
           <p className="text-amber-600 mb-4">{slotsError}</p>
         ) : (() => {

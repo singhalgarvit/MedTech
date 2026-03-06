@@ -6,6 +6,7 @@ import { AuthContext } from "../context/authContext";
 import getRole from "../utils/getRole";
 import getUserId from "../utils/getUserId";
 import BookAppointmentModal from "../components/DoctorPage/BookAppointmentModal";
+import { DoctorProfileSkeleton } from "../components/Skeleton";
 
 function DoctorProfile() {
   const { id } = useParams();
@@ -40,7 +41,7 @@ function DoctorProfile() {
     setShowBookModal(true);
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <DoctorProfileSkeleton />;
   if (error || !doctor) {
     return (
       <div className="p-8 text-center">

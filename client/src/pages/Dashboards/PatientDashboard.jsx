@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyAppointmentsForPatient } from "../../services/appointmentService";
+import { TableSkeleton } from "../../components/Skeleton";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -38,9 +39,7 @@ function PatientDashboard() {
       <h1 className="text-2xl font-bold text-center mb-2">Patient Dashboard</h1>
       <p className="text-center text-gray-600 mb-6">Your booked appointments with doctors</p>
 
-      {loading && (
-        <p className="text-center text-gray-500">Loading appointments...</p>
-      )}
+      {loading && <TableSkeleton rows={5} cols={7} />}
       {error && (
         <p className="text-center text-red-600 mb-4">{error}</p>
       )}

@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import DoctorCard from "../components/DoctorPage/DoctorCard";
+import { DoctorCardSkeleton } from "../components/Skeleton";
 import { useDoctors } from "../hooks/useDoctors";
 import { DoctorContext } from "../context/doctorContext";
 import { getDoctorFilterOptions } from "../services/doctorService";
@@ -88,9 +89,10 @@ function Doctors() {
       </div>
 
       {loadingDoctors ? (
-        <div className="flex justify-center items-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" aria-hidden="true" />
-          <span className="sr-only">Loading doctors...</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 text-center p-8 content-evenly justify-items-center">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <DoctorCardSkeleton key={i} />
+          ))}
         </div>
       ) : doctorsList && doctorsList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 text-center p-8 content-evenly justify-items-center">

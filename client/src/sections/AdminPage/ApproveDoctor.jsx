@@ -8,6 +8,7 @@ import {
   rejectDoctor,
   deleteDoctor,
 } from "../../services/doctorService";
+import { TableSkeleton } from "../../components/Skeleton";
 
 function ApproveDoctor() {
   const [list, setList] = useState([]);
@@ -149,7 +150,7 @@ function ApproveDoctor() {
               <p className="mb-4 p-2 rounded bg-red-100 text-red-700 text-sm">{error}</p>
             )}
             {loading ? (
-              <p className="text-gray-600">Loading unverified doctors…</p>
+              <TableSkeleton rows={4} cols={4} />
             ) : list.length === 0 ? (
               <p className="text-gray-600">No unverified doctor registrations.</p>
             ) : (
@@ -223,7 +224,7 @@ function ApproveDoctor() {
         {openVerified && (
           <div className="p-4">
             <p className="text-gray-600 text-sm mb-4">Delete a doctor to remove their profile and all their appointments.</p>
-            {verifiedLoading && <p className="text-gray-500 text-sm">Loading doctors…</p>}
+            {verifiedLoading && <TableSkeleton rows={5} cols={6} />}
             {verifiedError && (
               <p className="mb-2 p-2 rounded bg-red-100 text-red-700 text-sm">{verifiedError}</p>
             )}

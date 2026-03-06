@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getPatientsForAdmin, deletePatient } from "../../services/patientService";
+import { TableSkeleton } from "../../components/Skeleton";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -56,7 +57,7 @@ function AdminPatients() {
       <h2 className="text-xl font-semibold mb-4">All Patients</h2>
       <p className="text-gray-600 mb-4">Registered patients. Deleting a patient also removes their appointments.</p>
 
-      {loading && <p className="text-gray-500">Loading patients...</p>}
+      {loading && <TableSkeleton rows={6} cols={4} />}
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {!loading && !error && patients.length === 0 && (
         <p className="text-gray-500">No patients in the system.</p>

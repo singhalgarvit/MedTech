@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getChatLogsForAdmin } from "../../services/chatService";
+import { TableSkeleton } from "../../components/Skeleton";
 
 function AdminChatLogs() {
   const [logs, setLogs] = useState([]);
@@ -28,7 +29,7 @@ function AdminChatLogs() {
         Queries users asked the AI and the answers they received.
       </p>
 
-      {loading && <p className="text-gray-500">Loading chat logs...</p>}
+      {loading && <TableSkeleton rows={5} cols={3} />}
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {!loading && !error && logs.length === 0 && (
         <p className="text-gray-500">No chatbot activity yet.</p>

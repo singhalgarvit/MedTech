@@ -15,7 +15,7 @@ function Login() {
     handleSubmit,
     setError,
     clearErrors,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
   });
@@ -31,8 +31,7 @@ function Login() {
       navigate(location.state?.from || "/", { replace: true });
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message;
-      setError("loginError", {message: errMsg});
-      console.log(errMsg);
+      setError("loginError", { message: errMsg });
     }
   };
 
@@ -66,24 +65,25 @@ function Login() {
               {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
             </button>
           </div>
+          <div className="flex justify-end mt-1">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <Button
             type="submit"
             disabled={isSubmitting}
             value="Login"
             onclick={() => clearErrors()}
-            className={"mt-4 w-full"}
+            className="mt-4 w-full"
           />
           {errors.loginError && (
-            <p className="text-red-500 text-sm text-center">
-              {errors.loginError.message}
-            </p>
+            <p className="text-red-500 text-sm text-center">{errors.loginError.message}</p>
           )}
         </form>
-        <p>
-          Don't Have An Account&nbsp;
-          <Link to="/signup" className="underline">
-            Register Here
-          </Link>
+
+        <p className="mt-4 text-center">
+          Don&apos;t have an account? <Link to="/signup" className="underline">Sign up</Link>
         </p>
       </FormWrapper>
     </div>

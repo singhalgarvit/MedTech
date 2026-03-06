@@ -3,7 +3,7 @@ import {login, signup} from "../services/authService";
 import {AuthContext} from "../context/authContext";
 
 export const useAuth = () => {
-  const {token, setToken} = useContext(AuthContext);
+  const { token, setToken } = useContext(AuthContext);
 
   const handleLogin = async (data) => {
     try {
@@ -30,5 +30,5 @@ export const useAuth = () => {
     localStorage.removeItem("token");
   };
   
-  return {handleLogin, handleSignup, handleLogout};
+  return { handleLogin, handleSignup, handleLogout, setToken };
 };

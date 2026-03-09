@@ -161,7 +161,6 @@ Backend: http://localhost:2543
 # 🔮 Future Improvements
 
 * Online video consultation
-* Payment gateway integration
 * Electronic medical records
 * AI-powered symptom checker
 * Notifications and reminders

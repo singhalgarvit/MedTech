@@ -1,5 +1,6 @@
 
 import HeroImg from '../../assets/Medicine-bro.png'
+import { Link } from 'react-router-dom'
 
 function HeroSection() {
   return (
@@ -7,7 +8,7 @@ function HeroSection() {
       <div className="hero-content">
         <h1 className="text-3xl md:text-5xl font-bold mb-4">Revolutionizing Healthcare with Technology</h1>
         <p className="text-lg md:text-xl mb-8">Connecting patients and doctors through intelligent solutions — from online consultations to AI-powered diagnosis.</p>
-        <button className="bg-white text-blue-500 font-semibold py-2 px-4 rounded hover:bg-gray-200 transition-all">Get Started</button>
+        <Link to="/doctors" className="bg-white text-blue-500 font-semibold py-2 px-4 rounded hover:bg-gray-200 transition-all">Get Started</Link>
       </div>
       <div className="hero-image">
           <img src={HeroImg} alt="Hero" className=" md:w-lg rounded-lg hover:drop-shadow-[0_5px_10px_rgba(256,256,256,0.7)] transition-all shadow-white h-[400px]" />

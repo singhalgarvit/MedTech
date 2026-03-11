@@ -202,6 +202,8 @@ export const getAppointmentsForPatient = async (patientId) => {
       timeSlot: apt.timeSlot,
       status: apt.status,
       notes: apt.notes,
+      amount: apt.amount,
+      razorpayPaymentId: apt.razorpayPaymentId,
       doctor: {
         _id: doctorIdForProfile,
         name: doctorName,

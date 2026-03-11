@@ -82,3 +82,25 @@ export const deletePatientById = async (id) => {
   await User.findByIdAndDelete(id);
   return { deleted: true };
 };
+
+export const getPatientProfile = async (userId) => {
+  const user = await User.findById(userId).select("-password").lean();
+  return user;
+};
+
+export const updatePatientProfile = async (userId, data) => {
+  const { name, img } = data;
+  const updateData = {};
+  if (name != null && String(name).trim() !== "") {
+    updateData.name = String(name).trim();
+  }
+  if (img != null) {
+    updateData.img = img;
+  }
+  
+  if (Object.keys(updateData).length > 0) {
+    const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select("-password").lean();
+    return user;
+  }
+  return await getPatientProfile(userId);
+};

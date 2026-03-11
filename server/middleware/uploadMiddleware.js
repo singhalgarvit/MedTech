@@ -19,7 +19,7 @@ const uploadFields = multer({
   { name: "doctorIdCard", maxCount: 1 },
 ]);
 
-const profileImgOnly = multer({
+export const multerUpload = multer({
   storage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
@@ -27,7 +27,7 @@ const profileImgOnly = multer({
     if (allowed.includes(file.mimetype)) cb(null, true);
     else cb(new Error("Invalid file type. Only JPEG, PNG, and WebP are allowed."), false);
   },
-}).single("img");
+});
 
 /**
  * Multer middleware for doctor registration (use on route before body shaping).
@@ -108,7 +108,7 @@ export const cloudinaryUploadAndShapeBody = async (req, res, next) => {
 
 /** Optional profile image upload for doctor profile update (PUT /doctor/me). */
 export const doctorProfileImgUpload = (req, res, next) => {
-  profileImgOnly(req, res, (err) => {
+  multerUpload.single("img")(req, res, (err) => {
     if (err) {
       if (err.code === "LIMIT_FILE_SIZE") {
         return res.status(413).json({ error: "File too large. Max 2MB." });

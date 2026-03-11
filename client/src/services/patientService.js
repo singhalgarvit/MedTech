@@ -40,3 +40,24 @@ export const deletePatient = async (patientId) => {
   if (!res.ok) throw new Error(data.error || "Failed to delete patient");
   return data;
 };
+
+export const getMyPatientProfile = async () => {
+  const res = await fetch(`${BASE}/user/profile`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json", token: token() },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to fetch profile");
+  return data;
+};
+
+export const updateMyPatientProfile = async (formData) => {
+  const res = await fetch(`${BASE}/user/profile`, {
+    method: "PUT",
+    headers: { token: token() },
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update profile");
+  return data.profile;
+};

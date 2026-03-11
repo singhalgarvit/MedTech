@@ -3,6 +3,37 @@ import User from "../../database/models/user.schema.js";
 import Doctor from "../../database/models/doctor.schema.js";
 import Appointment from "../../database/models/appointment.schema.js";
 
+/** "Dr Garvit Singhal" or "Garvit Singhal" -> "dr-garvit-singhal" */
+function slugFromName(name) {
+  if (!name || typeof name !== "string") return "dr-unknown";
+  const base = name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+  return base ? `dr-${base}` : "dr-unknown";
+}
+
+/** Ensure slug is unique: if taken, try slug-1, slug-2, ... */
+async function ensureUniqueSlug(baseSlug) {
+  let slug = baseSlug;
+  let n = 0;
+  while (await Doctor.exists({ slug })) {
+    n += 1;
+    slug = `${baseSlug}-${n}`;
+  }
+  return slug;
+}
+
+/** Generate slug from name (unique) and optionally save on doctorDoc. Returns slug. */
+async function getOrCreateSlugForDoctor(doctorDoc, userName) {
+  if (doctorDoc.slug) return doctorDoc.slug;
+  const baseSlug = slugFromName(userName);
+  const slug = await ensureUniqueSlug(baseSlug);
+  await Doctor.findByIdAndUpdate(doctorDoc._id, { $set: { slug } });
+  return slug;
+}
+
 const getAllDoctors = async (query = {}) => {
   const users = await User.find({ role: "doctor" }).select("-password").lean();
   const emails = users.map((u) => u.email);
@@ -14,6 +45,16 @@ const getAllDoctors = async (query = {}) => {
     const { userEmail, isVerified, doctorIdCard, ...doctorFields } = doc;
     return { ...user, ...doctorFields };
   });
+  // Ensure every doctor has a slug (lazy set for existing docs)
+  for (const item of list) {
+    if (!item.slug && item.email) {
+      const doc = byEmail[item.email];
+      if (doc) {
+        const slug = await getOrCreateSlugForDoctor(doc, item.name);
+        item.slug = slug;
+      }
+    }
+  }
 
   const search = (query.search || "").trim().toLowerCase();
   const location = (query.location || "").trim().toLowerCase();
@@ -48,23 +89,38 @@ const getFilterOptions = async () => {
   return { qualifications, locations };
 };
 
-const getDoctorById = async (id) => {
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) return null;
-  // Try by User _id first (how doctor list links work)
-  let user = await User.findById(id).select("-password").lean();
-  if (user && user.role === "doctor") {
-    const doctorDoc = await Doctor.findOne({ userEmail: user.email }).lean();
-    if (!doctorDoc) return user;
-    const { _id: _docId, userEmail, isVerified, doctorIdCard, ...doctorFields } = doctorDoc;
-    return { ...user, ...doctorFields };
+const getDoctorById = async (idOrSlug) => {
+  if (!idOrSlug) return null;
+  const isObjectId = mongoose.Types.ObjectId.isValid(idOrSlug) && String(new mongoose.Types.ObjectId(idOrSlug)) === String(idOrSlug);
+
+  let user = null;
+  let doctorDoc = null;
+
+  if (isObjectId) {
+    user = await User.findById(idOrSlug).select("-password").lean();
+    if (user && user.role === "doctor") {
+      doctorDoc = await Doctor.findOne({ userEmail: user.email }).lean();
+      if (!doctorDoc) return { ...user };
+    } else {
+      doctorDoc = await Doctor.findById(idOrSlug).lean();
+      if (!doctorDoc || !doctorDoc.isVerified) return null;
+      user = await User.findOne({ email: doctorDoc.userEmail }).select("-password").lean();
+      if (!user || user.role !== "doctor") return null;
+    }
+  } else {
+    doctorDoc = await Doctor.findOne({ slug: idOrSlug, isVerified: true }).lean();
+    if (!doctorDoc) return null;
+    user = await User.findOne({ email: doctorDoc.userEmail }).select("-password").lean();
+    if (!user || user.role !== "doctor") return null;
   }
-  // Fallback: id might be Doctor collection _id (e.g. from another source)
-  const doctorDoc = await Doctor.findById(id).lean();
-  if (!doctorDoc || !doctorDoc.isVerified) return null;
-  user = await User.findOne({ email: doctorDoc.userEmail }).select("-password").lean();
-  if (!user || user.role !== "doctor") return null;
+
   const { _id: _docId, userEmail, isVerified, doctorIdCard, ...doctorFields } = doctorDoc;
-  return { ...user, ...doctorFields };
+  let result = { ...user, ...doctorFields };
+  if (!result.slug) {
+    const slug = await getOrCreateSlugForDoctor(doctorDoc, user.name);
+    result.slug = slug;
+  }
+  return result;
 };
 
 const createDoctor = async (doctorData, doctorEmail) => {
@@ -118,20 +174,23 @@ const viewRegisteredDoctor = async (userEmail) => {
 };
 
 const verifyDoctor = async (userEmail) => {
+  const user = await User.findOne({ email: userEmail }).select("name").lean();
   const updateDoctorModal = await Doctor.findOneAndUpdate(
-    {userEmail},
-    {$set: {isVerified: true}},
-    {new: true}
-  ); //set the isVerified to true in doctor table/model
+    { userEmail },
+    { $set: { isVerified: true } },
+    { new: true }
+  ).lean();
   if (!updateDoctorModal) {
     return "Doctor not Found!!";
   }
-  const updateUserModal = await User.findOneAndUpdate(
-    {email: userEmail},
-    {$set: {role: "doctor"}},
-    {new: true}
-  ); // set the role to doctor in user table/model
-  return updateDoctorModal;
+  const slug = await getOrCreateSlugForDoctor(updateDoctorModal, user?.name);
+  await Doctor.findByIdAndUpdate(updateDoctorModal._id, { $set: { slug } });
+  await User.findOneAndUpdate(
+    { email: userEmail },
+    { $set: { role: "doctor" } },
+    { new: true }
+  );
+  return { ...updateDoctorModal, slug };
 };
 
 const rejectDoctor = async (userEmail) => {

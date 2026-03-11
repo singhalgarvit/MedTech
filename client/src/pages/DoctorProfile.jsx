@@ -33,11 +33,11 @@ function InfoRow({ icon: Icon, label, value }) {
 }
 
 function DoctorProfile() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
   const [doctor, setDoctor] = useState(null);
-  const isOwnProfile = token && getRole() === "doctor" && getUserId() === id;
+  const isOwnProfile = token && doctor && getRole() === "doctor" && getUserId() === doctor._id;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showBookModal, setShowBookModal] = useState(false);
@@ -46,7 +46,7 @@ function DoctorProfile() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await getDoctorById(id);
+        const data = await getDoctorById(slug);
         if (!cancelled) setDoctor(data);
       } catch (err) {
         if (!cancelled) setError(err.message || "Failed to load doctor");
@@ -55,11 +55,11 @@ function DoctorProfile() {
       }
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [slug]);
 
   const handleBookClick = () => {
     if (!token) {
-      navigate("/login", { state: { from: `/doctors/${id}`, message: "Please login to book an appointment" } });
+      navigate("/login", { state: { from: `/doctors/${slug}`, message: "Please login to book an appointment" } });
       return;
     }
     setShowBookModal(true);

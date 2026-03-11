@@ -35,7 +35,7 @@ function Routers() {
             <Route path="/forgot-password" element={token ? <Navigate to="/" /> : <ForgotPassword />} />
             <Route path="/reset-password" element={token ? <Navigate to="/" /> : <ResetPassword />} />
             <Route path='/doctors' element={<Doctors/>}/>
-            <Route path='/doctors/:id' element={<DoctorProfile/>}/>
+            <Route path='/doctors/:slug' element={<DoctorProfile/>}/>
             <Route path='/about' element={<About/>}/>
             <Route path='/services' element={<Services/>}/>
             <Route path='/help' element={<Help/>}/>

@@ -110,7 +110,7 @@ function PatientDashboard() {
                   <td className="px-4 py-3">
                     {apt.doctor?._id ? (
                       <Link
-                        to={`/doctors/${apt.doctor._id}`}
+                        to={`/doctors/${apt.doctor.slug || apt.doctor._id}`}
                         className="text-blue-600 hover:underline text-sm"
                       >
                         View doctor

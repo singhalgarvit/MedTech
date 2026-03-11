@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function DoctorCard({ doctor }) {
   return (
     <Link
-      to={`/doctors/${doctor._id}`}
+      to={`/doctors/${doctor.slug || doctor._id}`}
       className="block w-[300px] group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2 rounded-2xl"
     >
       <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1 group-hover:border-blue-100">

@@ -183,9 +183,13 @@ export const getAppointmentsForPatient = async (patientId) => {
     let doctorEmail = doctorUser?.email ?? null;
     let specialization = null;
     let doctorIdForProfile = doctorUser?._id ?? null;
+    let slug = null;
     if (doctorUser?.email) {
-      const doctorDoc = await Doctor.findOne({ userEmail: doctorUser.email }).select("specialization").lean();
-      if (doctorDoc) specialization = doctorDoc.specialization;
+      const doctorDoc = await Doctor.findOne({ userEmail: doctorUser.email }).select("specialization slug").lean();
+      if (doctorDoc) {
+        specialization = doctorDoc.specialization;
+        slug = doctorDoc.slug ?? null;
+      }
     }
     result.push({
       _id: apt._id,
@@ -198,6 +202,7 @@ export const getAppointmentsForPatient = async (patientId) => {
         name: doctorName,
         email: doctorEmail,
         specialization,
+        slug,
       },
     });
   }

@@ -63,6 +63,11 @@ const DoctorSchema = new Schema(
       type: String,
       required: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true, // allow existing docs without slug
+    },
   },
   {timestamps: true}
 );

@@ -42,7 +42,7 @@ const getAllDoctors = async (query = {}) => {
   let list = users.map((user) => {
     const doc = byEmail[user.email];
     if (!doc) return { ...user };
-    const { userEmail, isVerified, doctorIdCard, ...doctorFields } = doc;
+    const { _id: _docId, userEmail, isVerified, doctorIdCard, ...doctorFields } = doc;
     return { ...user, ...doctorFields };
   });
   // Ensure every doctor has a slug (lazy set for existing docs)

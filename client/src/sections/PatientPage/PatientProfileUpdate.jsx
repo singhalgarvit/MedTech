@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { getMyPatientProfile, updateMyPatientProfile } from "../../services/patientService";
+import { AuthContext } from "../../context/authContext";
 
 function PatientProfileUpdate() {
+  const { setToken } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -58,11 +60,17 @@ function PatientProfileUpdate() {
       
       if (formData.get("name") || formData.get("img")) {
         const updated = await updateMyPatientProfile(formData);
+        
+        if (updated.token) {
+          localStorage.setItem("token", updated.token);
+          setToken(updated.token);
+        }
+
         setSuccess("Profile updated successfully.");
         setProfileImageFile(null);
-        setProfile(updated);
-        setForm({ name: updated.name ?? "" });
-        if (updated.img) setProfileImagePreview(updated.img);
+        setProfile(updated.profile);
+        setForm({ name: updated.profile.name ?? "" });
+        if (updated.profile.img) setProfileImagePreview(updated.profile.img);
       } else {
         setError("Change at least one field to update.");
       }

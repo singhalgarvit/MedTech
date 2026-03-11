@@ -1,5 +1,6 @@
 import { getAllPatients, deletePatientById, getAdminStats, getPatientProfile, updatePatientProfile } from "../services/userService.js";
 import User from "../../database/models/user.schema.js";
+import { jwtSign } from "../../utils/jwtSign.js";
 
 export const getAdminStatsController = async (req, res) => {
   try {
@@ -73,7 +74,15 @@ export const updateProfile = async (req, res) => {
     }
     
     const updatedProfile = await updatePatientProfile(patientId, data);
-    res.status(200).json({ success: true, profile: updatedProfile });
+    const tokenPayload = {
+      _id: updatedProfile._id,
+      name: updatedProfile.name,
+      email: updatedProfile.email,
+      role: updatedProfile.role,
+      img: updatedProfile.img
+    };
+    const token = jwtSign(tokenPayload);
+    res.status(200).json({ success: true, profile: updatedProfile, token });
   } catch (err) {
     res.status(500).json({ error: "Failed to update profile", details: err.message });
   }

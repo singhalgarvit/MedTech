@@ -14,27 +14,26 @@ import { RiUserSettingsLine, RiContactsBook2Line } from "react-icons/ri";
 import { getDoctorById } from "../services/doctorService";
 
 function Navbar() {
-  const { token } = useContext(AuthContext);
+  const { token, userData } = useContext(AuthContext);
   const navigate = useNavigate();
   const role = token ? getRole() : null;
   const fullName = token ? getFullName(token) : "";
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [profileImg, setProfileImg] = useState(null);
+  
+  // Attempt to parse the token to get user data natively if context `userData` is not passed
+  let profileImg = null;
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      profileImg = payload.img || (userData && userData.img) || null;
+    } catch (e) {
+      profileImg = null; // fallback
+    }
+  }
+
   const profileRefDesktop = useRef(null);
   const profileRefMobile = useRef(null);
-
-  useEffect(() => {
-    if (!token || role !== "doctor") {
-      setProfileImg(null);
-      return;
-    }
-    const id = getUserId();
-    if (!id) return;
-    getDoctorById(id)
-      .then((d) => setProfileImg(d?.img || null))
-      .catch(() => setProfileImg(null));
-  }, [token, role]);
 
   useEffect(() => {
     function handleClickOutside(e) {

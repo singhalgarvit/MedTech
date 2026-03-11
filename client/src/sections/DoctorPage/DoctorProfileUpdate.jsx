@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { getMyDoctorProfile, updateMyDoctorProfile } from "../../services/doctorService";
+import { AuthContext } from "../../context/authContext";
 
 function DoctorProfileUpdate() {
+  const { setToken } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,7 +68,11 @@ function DoctorProfileUpdate() {
       if (String(form.experience).trim() !== "") formData.append("experience", String(form.experience).trim());
       if (profileImageFile) formData.append("img", profileImageFile);
       if (formData.get("name") ?? formData.get("clinicLocation") ?? formData.get("experience") ?? formData.get("img")) {
-        await updateMyDoctorProfile(formData);
+        const updateResult = await updateMyDoctorProfile(formData);
+        if (updateResult.token) {
+          localStorage.setItem("token", updateResult.token);
+          setToken(updateResult.token);
+        }
       } else {
         setError("Change at least one field to update.");
         setSaving(false);

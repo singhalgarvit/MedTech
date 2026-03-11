@@ -10,14 +10,19 @@ const createUser = async(userData)=>{
     const user = new User({_id,name,email,password});
     await user.save();
     const role = user.role;
-    return { _id: user._id, name, email, role };
+    // img defaults to ""
+    return { _id: user._id, name, email, role, img: user.img };
 }
 
 const getUser = async(userData)=>{
     const {email,password} = userData;
-    const {name,password:savedPassword,role} = await User.findOne({email:email});
+    const user = await User.findOne({email:email});
+    if(!user) {
+        throw new Error("User does not exist");
+    }
+    const {name,password:savedPassword,role,img} = user;
     if(savedPassword === password){
-        return {name,email,role};
+        return { _id: user._id, name, email, role, img };
     }
     else{
         throw new Error("Password is Incorrect");

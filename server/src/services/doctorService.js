@@ -125,8 +125,15 @@ const getDoctorById = async (idOrSlug) => {
 
 const createDoctor = async (doctorData, doctorEmail) => {
   const _id = new mongoose.Types.ObjectId();
-  const doctor = new Doctor({...doctorData, userEmail: doctorEmail, _id});
+  const { img, ...restData } = doctorData;
+
+  const doctor = new Doctor({...restData, userEmail: doctorEmail, _id});
   await doctor.save();
+  
+  if (img) {
+    await User.findOneAndUpdate({ email: doctorEmail }, { $set: { img } });
+  }
+
   return doctor;
 };
 
@@ -213,12 +220,21 @@ const getMyProfile = async (userId) => {
   return getDoctorById(userId);
 };
 
-/** Update doctor's own profile: name (User), clinicLocation, experience, img (Doctor). Only provided non-empty fields are updated. */
+/** Update doctor's own profile: name and img (User), clinicLocation, experience (Doctor). Only provided non-empty fields are updated. */
 const updateMyProfile = async (userEmail, data) => {
   const { name, clinicLocation, experience, img } = data;
+  
+  const userUpdate = {};
   if (name != null && String(name).trim() !== "") {
-    await User.findOneAndUpdate({ email: userEmail }, { $set: { name: String(name).trim() } });
+    userUpdate.name = String(name).trim();
   }
+  if (img != null) {
+    userUpdate.img = img;
+  }
+  if (Object.keys(userUpdate).length > 0) {
+    await User.findOneAndUpdate({ email: userEmail }, { $set: userUpdate });
+  }
+
   const doctorUpdate = {};
   if (clinicLocation != null && String(clinicLocation).trim() !== "") {
     doctorUpdate.clinicLocation = String(clinicLocation).trim();
@@ -227,7 +243,6 @@ const updateMyProfile = async (userEmail, data) => {
     const num = parseInt(experience, 10);
     if (!Number.isNaN(num) && num >= 0) doctorUpdate.experience = num;
   }
-  if (img != null) doctorUpdate.img = img;
   if (Object.keys(doctorUpdate).length) {
     await Doctor.findOneAndUpdate({ userEmail }, { $set: doctorUpdate });
   }

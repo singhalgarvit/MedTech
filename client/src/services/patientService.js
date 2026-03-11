@@ -59,5 +59,5 @@ export const updateMyPatientProfile = async (formData) => {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to update profile");
-  return data.profile;
+  return data;
 };

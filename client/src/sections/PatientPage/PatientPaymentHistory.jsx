@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getMyAppointmentsForPatient } from "../../services/appointmentService";
 import { TableSkeleton } from "../../components/Skeleton";
-import { jsPDF } from "jspdf";
+import jsPDF from "jspdf";
 
 function formatDate(d) {
   if (!d) return "—";

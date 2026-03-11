@@ -13,10 +13,6 @@ const DoctorSchema = new Schema(
       required: true,
       unique: true,
     },
-    img: {
-      type: String,
-      required: true,
-    },
     specialization: {
       type: String,
       required: true,

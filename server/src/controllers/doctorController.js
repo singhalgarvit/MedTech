@@ -1,5 +1,6 @@
 import doctorService from '../services/doctorService.js';
 import User from '../../database/models/user.schema.js';
+import { jwtSign } from "../../utils/jwtSign.js";
 
 const getAllDoctors = async(req, res) => {
     try {
@@ -130,7 +131,14 @@ const updateMyProfile = async (req, res) => {
         if (experience !== undefined) data.experience = experience;
         if (img !== undefined) data.img = img;
         const updated = await doctorService.updateMyProfile(userEmail, data);
-        res.status(200).json(updated);
+        const token = jwtSign({
+            _id: updated._id,
+            name: updated.name,
+            email: updated.email,
+            role: updated.role,
+            img: updated.img
+        });
+        res.status(200).json({ ...updated, token });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }

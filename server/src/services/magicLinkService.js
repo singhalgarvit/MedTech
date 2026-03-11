@@ -61,7 +61,7 @@ export async function verifySignupToken(token) {
   });
   await user.save();
   await MagicToken.deleteOne({ token });
-  const jwtToken = jwtSign({ _id: user._id, name: user.name, email: user.email, role: user.role });
+  const jwtToken = jwtSign({ _id: user._id, name: user.name, email: user.email, role: user.role, img: user.img });
   return { token: jwtToken };
 }
 
@@ -93,10 +93,10 @@ export async function verifyLoginToken(token) {
     await MagicToken.deleteOne({ token });
     return { error: "Link has expired." };
   }
-  const user = await User.findOne({ email: doc.email }).select("_id name email role").lean();
+  const user = await User.findOne({ email: doc.email }).select("_id name email role img").lean();
   if (!user) return { error: "User not found." };
   await MagicToken.deleteOne({ token });
-  const jwtToken = jwtSign({ _id: user._id, name: user.name, email: user.email, role: user.role });
+  const jwtToken = jwtSign({ _id: user._id, name: user.name, email: user.email, role: user.role, img: user.img });
   return { token: jwtToken };
 }
 
@@ -148,6 +148,7 @@ export async function resetPasswordWithToken(token, newPassword) {
     name: user.name,
     email: user.email,
     role: user.role,
+    img: user.img,
   });
   return { token: jwtToken };
 }

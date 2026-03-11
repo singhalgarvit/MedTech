@@ -9,6 +9,7 @@ import {
   getResetPasswordUrl,
 } from "../../utils/sendEmail.js";
 import { jwtSign } from "../../utils/jwtSign.js";
+import bcrypt from "bcryptjs";
 
 const TOKEN_EXPIRY_MINUTES = 15;
 
@@ -49,14 +50,15 @@ export async function verifySignupToken(token) {
   }
   const existing = await User.findOne({ email: doc.email }).lean();
   if (existing) return { error: "User already registered." };
-  const password = doc.payload?.password;
   if (!password) return { error: "Invalid signup link." };
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
   const _id = new mongoose.Types.ObjectId();
   const user = new User({
     _id,
     name: doc.payload?.name || doc.email.split("@")[0],
     email: doc.email,
-    password,
+    password: hashedPassword,
     role: "patient",
   });
   await user.save();
@@ -140,7 +142,9 @@ export async function resetPasswordWithToken(token, newPassword) {
   }
   const user = await User.findOne({ email: doc.email });
   if (!user) return { error: "User not found." };
-  user.password = newPassword;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  user.password = hashedPassword;
   await user.save();
   await MagicToken.deleteOne({ token });
   const jwtToken = jwtSign({

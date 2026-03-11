@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { getMyAppointmentsForPatient } from "../../services/appointmentService";
 import { TableSkeleton } from "../../components/Skeleton";
+import { AuthContext } from "../../context/AuthContext";
 import jsPDF from "jspdf";
 
 function formatDate(d) {
@@ -15,9 +16,19 @@ function formatDate(d) {
 }
 
 function PatientPaymentHistory() {
+  const { token } = useContext(AuthContext);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  let user = null;
+  if (token) {
+    try {
+      user = JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      console.error("Failed to parse token", e);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -43,78 +54,114 @@ function PatientPaymentHistory() {
   const handleDownloadReceipt = (apt) => {
     const doc = new jsPDF();
 
-    // Colors
-    const primaryColor = [41, 128, 185];
+    const teal = [18, 140, 145];
 
-    // HEADER BACKGROUND
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, 210, 30, "F");
+    /* ---------- HEADER ---------- */
 
-    // TITLE
+    doc.setFillColor(...teal);
+    doc.rect(0, 0, 210, 40, "F");
+
     doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.text("MEDTECH", 20, 22);
+
+    doc.setFontSize(11);
+    doc.text("Digital Healthcare Platform", 20, 30);
+
+    doc.text("https://medtech.garvitsinghal.in", 140, 22);
+    doc.text("finance@medtech.com", 140, 30);
+
+    /* ---------- TITLE ---------- */
+
+    doc.setTextColor(40, 40, 40);
     doc.setFontSize(22);
-    doc.text("MEDTECH", 105, 15, null, null, "center");
+    doc.text("Medical Payment Receipt", 105, 60, { align: "center" });
+
+    /* ---------- RECEIPT INFO ---------- */
 
     doc.setFontSize(12);
-    doc.text("Payment Receipt", 105, 23, null, null, "center");
 
-    // Reset text color
-    doc.setTextColor(0, 0, 0);
+    doc.text("Receipt ID:", 20, 80);
+    doc.text(apt.razorpayPaymentId, 60, 80);
 
-    // CLINIC INFO
-    doc.setFontSize(10);
-    doc.text("MedTech Digital Clinic", 20, 40);
-    doc.text("www.medtech.com", 20, 46);
+    doc.text("Date:", 20, 90);
+    doc.text(formatDate(apt.date), 60, 90);
 
-    // RECEIPT DETAILS
-    doc.setFontSize(11);
-    doc.text(`Receipt ID: ${apt.razorpayPaymentId}`, 140, 40);
-    doc.text(`Date: ${formatDate(apt.date)}`, 140, 46);
+    doc.text("Payment Method:", 20, 100);
+    doc.text("Online (Razorpay)", 60, 100);
 
-    // LINE
-    doc.line(20, 52, 190, 52);
+    /* ---------- PATIENT DETAILS ---------- */
 
-    // PATIENT SECTION
-    doc.setFontSize(14);
-    doc.text("Appointment Details", 20, 65);
-
-    doc.setFontSize(11);
-
-    doc.text(`Doctor`, 20, 80);
-    doc.text(`Dr. ${apt.doctor?.name ?? "Unknown"}`, 80, 80);
-
-    doc.text(`Specialization`, 20, 90);
-    doc.text(`${apt.doctor?.specialization ?? "N/A"}`, 80, 90);
-
-    doc.text(`Consultation Time`, 20, 100);
-    doc.text(`${formatDate(apt.date)} at ${apt.timeSlot}`, 80, 100);
-
-    // PAYMENT BOX
-    doc.setFillColor(245, 245, 245);
-    doc.rect(20, 115, 170, 25, "F");
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, 110, 170, 10, "F");
 
     doc.setFontSize(13);
-    doc.text("Payment Details", 25, 125);
+    doc.text("Patient Details", 22, 117);
+
+    doc.setFontSize(11);
+
+    doc.text("Name:", 20, 130);
+    doc.text(user?.name ?? "Patient", 60, 130);
+
+    doc.text("Email:", 20, 140);
+    doc.text(user?.email ?? "N/A", 60, 140);
+
+    /* ---------- APPOINTMENT DETAILS ---------- */
+
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, 150, 170, 10, "F");
+
+    doc.setFontSize(13);
+    doc.text("Appointment Details", 22, 157);
+
+    doc.setFontSize(11);
+
+    doc.text("Doctor:", 20, 170);
+    doc.text(`Dr. ${apt.doctor?.name ?? "Unknown"}`, 60, 170);
+
+    doc.text("Specialization:", 20, 180);
+    doc.text(apt.doctor?.specialization ?? "N/A", 60, 180);
+
+    doc.text("Consultation Time:", 20, 190);
+    doc.text(`${formatDate(apt.date)} | ${apt.timeSlot}`, 60, 190);
+
+    /* ---------- PAYMENT SUMMARY ---------- */
+
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, 205, 170, 10, "F");
+
+    doc.setFontSize(13);
+    doc.text("Payment Summary", 22, 212);
 
     doc.setFontSize(12);
-    doc.text(`Amount Paid:`, 25, 135);
-    doc.text(`Rs. ${apt.amount}`, 160, 135, null, null, "right");
 
-    // FOOTER LINE
-    doc.line(20, 160, 190, 160);
+    doc.text("Consultation Fee:", 120, 230);
+    doc.text(`${apt.amount}`, 190, 230, { align: "right" });
 
-    // FOOTER TEXT
+    doc.text("Tax:", 120, 240);
+    doc.text("0", 190, 240, { align: "right" });
+
+    doc.setFontSize(14);
+    doc.text("Total Paid:", 120, 255);
+    doc.text(`Rs. ${apt.amount}`, 190, 255, { align: "right" });
+
+    /* ---------- FOOTER ---------- */
+
     doc.setFontSize(10);
+
+    doc.text(
+      "This is a digitally generated receipt and does not require a signature.",
+      105,
+      275,
+      { align: "center" }
+    );
+
     doc.text(
       "Thank you for choosing MedTech. Wishing you good health!",
       105,
-      170,
-      null,
-      null,
-      "center"
+      282,
+      { align: "center" }
     );
-
-    doc.text("This is a digitally generated receipt.", 105, 176, null, null, "center");
 
     doc.save(`MedTech_Receipt_${apt.razorpayPaymentId}.pdf`);
   };
@@ -160,7 +207,7 @@ function PatientPaymentHistory() {
                 <td className="px-4 py-3 text-center">
                   <button
                     onClick={() => handleDownloadReceipt(apt)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium focus:outline-none"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium focus:outline-none cursor-pointer"
                   >
                     Download Receipt
                   </button>

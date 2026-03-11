@@ -1,5 +1,5 @@
-import {AuthContextProvider} from "./authContext";
-import {DoctorContextProvider} from "./doctorContext";
+import {AuthContextProvider} from "./AuthContext";
+import {DoctorContextProvider} from "./DoctorContext";
 
 const ContextProvider = ({children}) => {
   return (

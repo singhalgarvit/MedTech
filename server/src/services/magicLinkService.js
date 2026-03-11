@@ -50,6 +50,7 @@ export async function verifySignupToken(token) {
   }
   const existing = await User.findOne({ email: doc.email }).lean();
   if (existing) return { error: "User already registered." };
+  const password = doc.payload?.password;
   if (!password) return { error: "Invalid signup link." };
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);

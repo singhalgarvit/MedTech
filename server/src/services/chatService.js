@@ -36,6 +36,8 @@ export const getAllChatLogsForAdmin = async () => {
       if (m1?.role === "user" && m2?.role === "assistant") {
         logs.push({
           userId,
+          messageId1: m1._id,
+          messageId2: m2._id,
           userName,
           userEmail,
           query: m1.content,
@@ -45,4 +47,18 @@ export const getAllChatLogsForAdmin = async () => {
     }
   }
   return logs;
+};
+export const deleteSpecificChatMessages = async (userId, messageId1, messageId2, query, answer) => {
+  if (messageId1 && messageId2) {
+    await Chat.findOneAndUpdate(
+      { userId },
+      { $pull: { messages: { _id: { $in: [messageId1, messageId2] } } } }
+    );
+  } else {
+    await Chat.findOneAndUpdate(
+      { userId },
+      { $pull: { messages: { $or: [{ content: query }, { content: answer }] } } }
+    );
+  }
+  return { success: true };
 };

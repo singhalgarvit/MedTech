@@ -1,4 +1,4 @@
-import { getChatByUserId, saveChat, getAllChatLogsForAdmin } from "../services/chatService.js";
+import { getChatByUserId, saveChat, getAllChatLogsForAdmin, deleteSpecificChatMessages } from "../services/chatService.js";
 import User from "../../database/models/user.schema.js";
 
 const resolveUserId = async (req) => {
@@ -46,5 +46,18 @@ export const getChatLogsAdmin = async (req, res) => {
     res.status(200).json(logs);
   } catch (err) {
     res.status(500).json({ error: "Failed to load chat logs", details: err.message });
+  }
+};
+export const deleteChatAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { messageId1, messageId2, query, answer } = req.body;
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+    await deleteSpecificChatMessages(userId, messageId1, messageId2, query, answer);
+    res.status(200).json({ success: true, message: "Chat messages deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete chat", details: err.message });
   }
 };

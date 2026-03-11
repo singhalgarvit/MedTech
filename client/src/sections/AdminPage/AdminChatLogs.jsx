@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { getChatLogsForAdmin } from "../../services/chatService";
+import { getChatLogsForAdmin, deleteUserChatByAdmin } from "../../services/chatService";
 import { TableSkeleton } from "../../components/Skeleton";
-
+import { FaTrash } from "react-icons/fa6";
 function AdminChatLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const handleDeleteChat = async (log) => {
+    if (!window.confirm("Are you sure you want to delete this specific chat message?")) return;
+    try {
+      await deleteUserChatByAdmin(log.userId, log.messageId1, log.messageId2, log.query, log.answer);
+      setLogs((prev) => prev.filter((l) => !(l.userId === log.userId && l.query === log.query && l.answer === log.answer)));
+    } catch (err) {
+      alert("Failed to delete chat: " + err.message);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +58,9 @@ function AdminChatLogs() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   AI answer
                 </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -67,6 +80,15 @@ function AdminChatLogs() {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700 max-w-[400px]" title={log.answer}>
                     <span className="line-clamp-3">{log.answer || "—"}</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-center">
+                    <button
+                      onClick={() => handleDeleteChat(log)}
+                      className="text-red-600 hover:text-red-900 hover:scale-110 focus:outline-none cursor-pointer"
+                      title="Delete this specific chat message"
+                    >
+                      <FaTrash />
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -45,3 +45,16 @@ export const getChatLogsForAdmin = async () => {
   if (!res.ok) throw new Error(data.error || "Failed to fetch chat logs");
   return Array.isArray(data) ? data : [];
 };
+/** Admin only: delete a specific chat message pair */
+export const deleteUserChatByAdmin = async (userId, messageId1, messageId2, query, answer) => {
+  const token = getToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${BASE}/admin/${userId}/messages`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", token },
+    body: JSON.stringify({ messageId1, messageId2, query, answer })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to delete chat");
+  return data;
+};

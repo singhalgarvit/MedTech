@@ -23,9 +23,10 @@ const AppointmentSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed"],
+      enum: ["pending", "confirmed", "cancelled", "completed", "rejected", "no_show"],
       default: "pending",
     },
+    amount: { type: Number }, // consultation fee in INR at time of booking (for earnings)
     notes: { type: String },
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },

@@ -204,8 +204,34 @@ const rejectDoctor = async (userEmail) => {
 };
 
 const updateDoctor = async (id, doctorData) => {
-  const doctor = await User.findByIdAndUpdate(id, doctorData, {new: true});
+  const doctor = await User.findByIdAndUpdate(id, doctorData, { new: true });
   return doctor;
+};
+
+/** Get current doctor profile by user id (for /doctor/me) */
+const getMyProfile = async (userId) => {
+  return getDoctorById(userId);
+};
+
+/** Update doctor's own profile: name (User), clinicLocation, experience, img (Doctor). Only provided non-empty fields are updated. */
+const updateMyProfile = async (userEmail, data) => {
+  const { name, clinicLocation, experience, img } = data;
+  if (name != null && String(name).trim() !== "") {
+    await User.findOneAndUpdate({ email: userEmail }, { $set: { name: String(name).trim() } });
+  }
+  const doctorUpdate = {};
+  if (clinicLocation != null && String(clinicLocation).trim() !== "") {
+    doctorUpdate.clinicLocation = String(clinicLocation).trim();
+  }
+  if (experience != null && String(experience).trim() !== "") {
+    const num = parseInt(experience, 10);
+    if (!Number.isNaN(num) && num >= 0) doctorUpdate.experience = num;
+  }
+  if (img != null) doctorUpdate.img = img;
+  if (Object.keys(doctorUpdate).length) {
+    await Doctor.findOneAndUpdate({ userEmail }, { $set: doctorUpdate });
+  }
+  return getDoctorById((await User.findOne({ email: userEmail }).select("_id").lean())?._id);
 };
 
 /** Delete doctor by User _id. Removes their appointments, Doctor document, then User. Only users with role "doctor" can be deleted. */
@@ -231,4 +257,6 @@ export default {
   rejectDoctor,
   updateDoctor,
   deleteDoctorById,
+  getMyProfile,
+  updateMyProfile,
 };

@@ -19,6 +19,16 @@ const uploadFields = multer({
   { name: "doctorIdCard", maxCount: 1 },
 ]);
 
+const profileImgOnly = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (allowed.includes(file.mimetype)) cb(null, true);
+    else cb(new Error("Invalid file type. Only JPEG, PNG, and WebP are allowed."), false);
+  },
+}).single("img");
+
 /**
  * Multer middleware for doctor registration (use on route before body shaping).
  */
@@ -93,5 +103,31 @@ export const cloudinaryUploadAndShapeBody = async (req, res, next) => {
   } catch (err) {
     console.error("Cloudinary upload error:", err);
     res.status(500).json({ error: "Failed to upload images. Please try again." });
+  }
+};
+
+/** Optional profile image upload for doctor profile update (PUT /doctor/me). */
+export const doctorProfileImgUpload = (req, res, next) => {
+  profileImgOnly(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ error: "File too large. Max 2MB." });
+      }
+      return res.status(400).json({ error: err.message || "File upload failed." });
+    }
+    next();
+  });
+};
+
+/** Upload optional profile img to Cloudinary and set req.body.img. Run after doctorProfileImgUpload. */
+export const cloudinaryUploadProfileImgOptional = async (req, res, next) => {
+  try {
+    if (req.file) {
+      req.body.img = await uploadToCloudinary(req.file.buffer, { folder: "medtech/doctors/profile" });
+    }
+    next();
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    res.status(500).json({ error: "Failed to upload image. Please try again." });
   }
 };

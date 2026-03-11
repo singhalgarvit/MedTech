@@ -1,4 +1,5 @@
 import doctorService from '../services/doctorService.js';
+import User from '../../database/models/user.schema.js';
 
 const getAllDoctors = async(req, res) => {
     try {
@@ -96,7 +97,44 @@ const deleteDoctor = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
-}
+};
+
+const getMyProfile = async (req, res) => {
+    try {
+        let userId = req.user._id;
+        if (!userId && req.user.email) {
+            const user = await User.findOne({ email: req.user.email }).select('_id').lean();
+            userId = user?._id;
+        }
+        if (!userId) {
+            return res.status(401).json({ error: 'User not found. Please login again.' });
+        }
+        const doctor = await doctorService.getMyProfile(userId);
+        if (!doctor) {
+            return res.status(404).json({ error: 'Doctor profile not found' });
+        }
+        res.status(200).json(doctor);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+};
+
+const updateMyProfile = async (req, res) => {
+    try {
+        const userEmail = req.user.email;
+        const { name, clinicLocation, experience } = req.body;
+        const img = req.body.img;
+        const data = {};
+        if (name !== undefined) data.name = name;
+        if (clinicLocation !== undefined) data.clinicLocation = clinicLocation;
+        if (experience !== undefined) data.experience = experience;
+        if (img !== undefined) data.img = img;
+        const updated = await doctorService.updateMyProfile(userEmail, data);
+        res.status(200).json(updated);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+};
 
 export default {
     getAllDoctors,
@@ -107,5 +145,7 @@ export default {
     viewRegisteredDoctor,
     verifyDoctor,
     rejectDoctor,
-    deleteDoctor
+    deleteDoctor,
+    getMyProfile,
+    updateMyProfile
 };

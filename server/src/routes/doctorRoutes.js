@@ -4,10 +4,12 @@ import doctorController from '../controllers/doctorController.js';
 import { verifyToken, requireRole } from '../../middleware/authMiddleware.js';
 import { validate } from '../../middleware/validate.js';
 import { doctorSchema } from '../../validators/doctorSchema.js';
-import { doctorUpload, cloudinaryUploadAndShapeBody } from '../../middleware/uploadMiddleware.js';
+import { doctorUpload, cloudinaryUploadAndShapeBody, doctorProfileImgUpload, cloudinaryUploadProfileImgOptional } from '../../middleware/uploadMiddleware.js';
 
 router.get('/', doctorController.getAllDoctors); //Everyone can see all the list of doctors (query: search, location, qualification)
 router.get('/filters', doctorController.getFilterOptions); // distinct qualifications & locations for filter dropdowns
+router.get('/me', verifyToken, requireRole(['doctor']), doctorController.getMyProfile);
+router.put('/me', verifyToken, requireRole(['doctor']), doctorProfileImgUpload, cloudinaryUploadProfileImgOptional, doctorController.updateMyProfile);
 router.get('/:id', doctorController.getDoctorById);  // everyone can see the specific doctor detail
 router.post(
   '/register',

@@ -138,6 +138,9 @@ export const createAppointmentAfterPayment = async (payload) => {
   const date = new Date(dateStr);
   date.setUTCHours(0, 0, 0, 0);
 
+  const resolved = await resolveDoctor(doctorId);
+  const amountInr = resolved?.doctorDoc?.consultationFee ?? 0;
+
   const appointment = new Appointment({
     patientId,
     doctorId,
@@ -145,6 +148,7 @@ export const createAppointmentAfterPayment = async (payload) => {
     timeSlot,
     notes: notes || undefined,
     status: "confirmed",
+    amount: amountInr,
     razorpayOrderId,
     razorpayPaymentId,
   });
@@ -164,6 +168,7 @@ export const getAppointmentsForDoctor = async (doctorId) => {
     timeSlot: apt.timeSlot,
     status: apt.status,
     notes: apt.notes,
+    amount: apt.amount,
     patient: apt.patientId
       ? { _id: apt.patientId._id, name: apt.patientId.name, email: apt.patientId.email }
       : null,
@@ -249,6 +254,65 @@ export const getAllAppointmentsForAdmin = async () => {
   return result;
 };
 
+/** Update appointment status (doctor only, for their appointments). Allowed: completed, rejected, no_show */
+export const updateAppointmentStatus = async (appointmentId, doctorId, status) => {
+  const allowed = ["completed", "rejected", "no_show"];
+  if (!allowed.includes(status)) {
+    return { success: false, error: "Invalid status" };
+  }
+  const apt = await Appointment.findOne({ _id: appointmentId, doctorId }).lean();
+  if (!apt) return { success: false, error: "Appointment not found" };
+  await Appointment.findByIdAndUpdate(appointmentId, { $set: { status } });
+  return { success: true };
+};
+
+/** Get earnings for a doctor: today, this month, total, dayWise (last 30 days), monthly (last 12 months) */
+export const getDoctorEarnings = async (doctorId) => {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+  const completed = await Appointment.find({
+    doctorId,
+    status: "completed",
+  })
+    .select("date amount")
+    .lean();
+
+  let today = 0,
+    thisMonth = 0,
+    total = 0;
+  const dayMap = {};
+  const monthMap = {};
+
+  for (const apt of completed) {
+    const amt = apt.amount ?? 0;
+    total += amt;
+    const d = new Date(apt.date);
+    if (d >= todayStart) today += amt;
+    if (d >= monthStart) thisMonth += amt;
+    const dayKey = d.toISOString().slice(0, 10);
+    dayMap[dayKey] = (dayMap[dayKey] || 0) + amt;
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthMap[monthKey] = (monthMap[monthKey] || 0) + amt;
+  }
+
+  const dayWise = Object.entries(dayMap)
+    .filter(([k]) => new Date(k) >= thirtyDaysAgo)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, amount]) => ({ date, amount }));
+
+  const monthly = Object.entries(monthMap)
+    .filter(([k]) => k >= twelveMonthsAgo.toISOString().slice(0, 7))
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([month, amount]) => ({ month, amount }));
+
+  return { today, thisMonth, total, dayWise, monthly };
+};
+
 export default {
   getAvailableSlots,
   createOrderAndHoldSlot,
@@ -256,4 +320,6 @@ export default {
   getAppointmentsForDoctor,
   getAppointmentsForPatient,
   getAllAppointmentsForAdmin,
+  updateAppointmentStatus,
+  getDoctorEarnings,
 };

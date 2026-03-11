@@ -256,4 +256,46 @@ const getCalendarEvent = async (req, res) => {
   }
 };
 
-export default { getSlots, createOrder, verifyPayment, getMyAppointments, getMyAppointmentsPatient, getAllAppointmentsAdmin, getCalendarEvent };
+const updateAppointmentStatus = async (req, res) => {
+  try {
+    let doctorId = req.user._id;
+    if (!doctorId && req.user.email) {
+      const user = await User.findOne({ email: req.user.email }).select("_id").lean();
+      doctorId = user?._id;
+    }
+    if (!doctorId) {
+      return res.status(401).json({ error: "User not found. Please login again." });
+    }
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!id || !status) {
+      return res.status(400).json({ error: "Appointment id and status are required" });
+    }
+    const result = await appointmentService.updateAppointmentStatus(id, doctorId, status);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error || "Update failed" });
+    }
+    res.status(200).json({ message: "Status updated" });
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
+};
+
+const getDoctorEarnings = async (req, res) => {
+  try {
+    let doctorId = req.user._id;
+    if (!doctorId && req.user.email) {
+      const user = await User.findOne({ email: req.user.email }).select("_id").lean();
+      doctorId = user?._id;
+    }
+    if (!doctorId) {
+      return res.status(401).json({ error: "User not found. Please login again." });
+    }
+    const earnings = await appointmentService.getDoctorEarnings(doctorId);
+    res.status(200).json(earnings);
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
+};
+
+export default { getSlots, createOrder, verifyPayment, getMyAppointments, getMyAppointmentsPatient, getAllAppointmentsAdmin, getCalendarEvent, updateAppointmentStatus, getDoctorEarnings };

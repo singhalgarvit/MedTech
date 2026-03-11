@@ -84,3 +84,32 @@ export const getAllAppointmentsForAdmin = async () => {
   if (!res.ok) throw new Error(data.error || "Failed to fetch appointments");
   return data;
 };
+
+/** Doctor: update appointment status to completed | rejected | no_show */
+export const updateAppointmentStatus = async (appointmentId, status) => {
+  const res = await fetch(`${BASE}/appointment/${appointmentId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      token: token(),
+    },
+    body: JSON.stringify({ status }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update status");
+  return data;
+};
+
+/** Doctor: fetch earnings (today, thisMonth, total, dayWise, monthly) */
+export const getDoctorEarnings = async () => {
+  const res = await fetch(`${BASE}/appointment/doctor/earnings`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: token(),
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to fetch earnings");
+  return data;
+};

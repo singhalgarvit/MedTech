@@ -127,6 +127,34 @@ const deleteDoctor = async (doctorId) => {
   return data;
 };
 
+/** Doctor: get my profile (current logged-in doctor) */
+const getMyDoctorProfile = async () => {
+  const res = await fetch(`${BASE}/doctor/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: token(),
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to fetch profile");
+  return data;
+};
+
+/** Doctor: update my profile (name, clinicLocation, experience, optional img file) */
+const updateMyDoctorProfile = async (formData) => {
+  const res = await fetch(`${BASE}/doctor/me`, {
+    method: "PUT",
+    headers: {
+      token: token(),
+    },
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update profile");
+  return data;
+};
+
 export {
   getDoctors,
   getDoctorById,
@@ -137,4 +165,6 @@ export {
   verifyDoctor,
   rejectDoctor,
   deleteDoctor,
+  getMyDoctorProfile,
+  updateMyDoctorProfile,
 };

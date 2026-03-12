@@ -1,6 +1,7 @@
 import doctorService from '../services/doctorService.js';
 import User from '../../database/models/user.schema.js';
 import { jwtSign } from "../../utils/jwtSign.js";
+import { syncDoctorEmbedding } from "../services/vectorSyncService.js";
 
 const getAllDoctors = async(req, res) => {
     try {
@@ -68,6 +69,7 @@ const verifyDoctor = async(req,res) =>{
     try {
         const { userEmail } = req.params;
         const isDoctorVerified = await doctorService.verifyDoctor(userEmail);
+        syncDoctorEmbedding(isDoctorVerified._id).catch(console.error);
         res.status(200).json(isDoctorVerified)
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
@@ -138,6 +140,7 @@ const updateMyProfile = async (req, res) => {
             role: updated.role,
             img: updated.img
         });
+        syncDoctorEmbedding(updated._id).catch(console.error);
         res.status(200).json({ ...updated, token });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });

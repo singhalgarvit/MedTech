@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BsSend } from "react-icons/bs";
 import { HiOutlineSparkles } from "react-icons/hi";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getChatHistory, saveChatInBackground } from "../services/chatService.js";
+import { getChatBotResponse, getChatHistory, saveChatInBackground } from "../services/chatService.js";
 import { ChatSkeleton } from "../components/Skeleton";
 
 export default function Chatbot() {
@@ -26,44 +25,34 @@ export default function Chatbot() {
   }, []);
 
   const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+  e.preventDefault();
+  if (!message.trim()) return;
 
-    const newChat = [...chat, { role: "user", content: message }];
-    setChat(newChat);
-    setMessage("");
-    const apiKey = import.meta.env.VITE_ai_api;
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-    const systemPrompt = `
-      You are Dr. MedTechBot developed by Garvit & team — a friendly and professional **medical advisor**.
-      Respond as a certified doctor who gives evidence-based, empathetic answers.
-      Keep responses **under 100 words** unless a detailed explanation is clearly necessary.
-      Avoid providing diagnoses or prescriptions — give **general medical guidance** only.
-      Dont give advice other than medical field.
-    `;
-    const prompt = `${systemPrompt}\n\nUser: ${message}\nDoctor:`;
-    try {
-      setLoading(true);
-      const result = await model.generateContent(prompt);
-      const response = result.response.text();
-      const updatedChat = [...newChat, { role: "assistant", content: response }];
-      setChat(updatedChat);
-      saveChatInBackground(updatedChat);
-    } catch (err) {
-      const fallbackChat = [
-        ...newChat,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again...",
-        },
-      ];
-      setChat(fallbackChat);
-      saveChatInBackground(fallbackChat);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const newChat = [...chat, { role: "user", content: message }];
+  setChat(newChat);
+  setMessage("");
+
+  try {
+    setLoading(true);
+
+    const data = await getChatBotResponse(message);
+    const updatedChat = [
+      ...newChat,
+      { role: "assistant", content: data.message ,suggestedDoctors: data.suggestedDoctors},
+    ];
+    setChat(updatedChat);
+    saveChatInBackground(updatedChat);
+  } catch (err) {
+    const fallbackChat = [
+      ...newChat,
+      { role: "assistant", content: "Something went wrong. Please try again..." },
+    ];
+    setChat(fallbackChat);
+    saveChatInBackground(fallbackChat);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className=" bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex flex-col items-center justify-center p-4 md:p-6">
@@ -112,6 +101,21 @@ export default function Chatbot() {
                   }`}
                 >
                   <span className="whitespace-pre-wrap break-words">{msg.content}</span>
+                  {msg.role === "assistant" && msg.suggestedDoctors?.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {msg.suggestedDoctors.map((doc, i) => (
+                        <a
+                        key={i}
+                        href={`/doctors/${doc.slug}`}
+                        className="flex flex-col text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-xl hover:bg-blue-100 transition"
+                      >
+                        <span className="font-semibold">{doc.specialization}</span>
+                        <span className="text-slate-500">{doc.clinicName}, {doc.clinicLocation}</span>
+                        <span className="text-slate-400">₹{doc.consultationFee} · {doc.experience} yrs</span>
+                      </a>
+                    ))}
+  </div>
+)}
                 </div>
               </div>
             ))

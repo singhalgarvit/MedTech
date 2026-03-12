@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const DoctorSchema = new Schema(
   {
@@ -45,10 +45,10 @@ const DoctorSchema = new Schema(
       type: Number,
       required: true,
     },
-    availableDays: [{type: String}], //This will be the array of days the doctor is available
+    availableDays: [{ type: String }], //This will be the array of days the doctor is available
     availableTime: {
-      start: {type: String}, // e.g. "10:00 AM"
-      end: {type: String}, // e.g. "5:00 PM"
+      start: { type: String }, // e.g. "10:00 AM"
+      end: { type: String }, // e.g. "5:00 PM"
     },
     isVerified: {
       type: Boolean,
@@ -64,8 +64,13 @@ const DoctorSchema = new Schema(
       unique: true,
       sparse: true, // allow existing docs without slug
     },
+    embedding: {
+      type: [Number],
+      default: undefined,
+      select: false,
+    },
   },
-  {timestamps: true}
+  { timestamps: true }
 );
 
 const Doctor = mongoose.model("Doctor", DoctorSchema);

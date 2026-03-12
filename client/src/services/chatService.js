@@ -58,3 +58,18 @@ export const deleteUserChatByAdmin = async (userId, messageId1, messageId2, quer
   if (!res.ok) throw new Error(data.error || "Failed to delete chat");
   return data;
 };
+
+export const getChatBotResponse = async(message) =>{
+  const res = await fetch(
+      `${BASE}/ai`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message }),
+      }
+    );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to get chatbot response");
+  return data;
+}

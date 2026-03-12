@@ -99,7 +99,7 @@ function Navbar() {
                 </div>
                 <button
                   type="button"
-                  className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-left cursor-pointer"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate("/dashboard");
@@ -107,7 +107,7 @@ function Navbar() {
                 >
                   Dashboard
                 </button>
-                <div className="px-4 py-2 border-t border-gray-100 mt-1">
+                <div className="px-4 py-2 border-t border-gray-100 mt-1 cursor-pointer">
                   <LogoutButton className="block w-full text-center" />
                 </div>
               </div>

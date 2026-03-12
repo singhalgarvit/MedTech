@@ -181,7 +181,10 @@ function PatientPaymentHistory() {
                 Doctor
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Appointment Details
+                Appointment Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Appointment Time
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Amount Paid
@@ -199,8 +202,10 @@ function PatientPaymentHistory() {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   <div>{formatDate(apt.date)}</div>
-                  <div className="text-xs text-gray-500">{apt.timeSlot ?? "—"}</div>
                 </td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  <div className="text-xs text-gray-500">{apt.timeSlot ?? "—"}</div>
+                </td> 
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">
                   Rs. {apt.amount}
                 </td>

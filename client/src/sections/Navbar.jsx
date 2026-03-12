@@ -80,7 +80,7 @@ function Navbar() {
             <button
               type="button"
               onClick={() => setProfileOpen((o) => !o)}
-              className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border-2 border-white/80 hover:border-white focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="flex items-center justify-center w-10 h-10 rounded-full cursor-pointer overflow-hidden border-2 border-white/80 hover:border-white focus:outline-none focus:ring-2 focus:ring-white/50"
               aria-label="Profile menu"
             >
               {profileImg ? (
